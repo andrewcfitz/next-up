@@ -16,3 +16,14 @@ xcuserdata/
 
 # macOS
 .DS_Store
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output
+fastlane/README.md
+vendor/bundle/
+.bundle/
+
+# mise local overrides
+mise.local.toml

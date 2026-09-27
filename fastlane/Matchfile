@@ -1,0 +1,11 @@
+# Shared with Earful: both apps sign as team 8353VT99LA, and a team can hold
+# only a handful of Developer ID certificates, so they share one.
+git_url(ENV.fetch("MATCH_GIT_URL", "git@github.com:fitz-biz/earful-certificates.git"))
+storage_mode("git")
+
+type("developer_id")
+platform("macos")
+
+# Developer ID apps need no provisioning profile here: the App Group uses the
+# Team ID prefix, which macOS checks against the signature, not a profile.
+skip_provisioning_profiles(true)

@@ -14,6 +14,16 @@ its check-out is the end date, so an event from Oct 2 to Oct 5 is three nights. 
 already in progress is ignored: "next" always means the next check-in, today or later.
 Same-day timed events are skipped.
 
+## Install
+
+```sh
+brew tap andrewcfitz/next-up https://github.com/andrewcfitz/next-up
+brew install --cask next-up
+```
+
+Releases are signed with Developer ID and notarized by Apple, so the app opens without
+Gatekeeper warnings. `brew upgrade --cask next-up` picks up new versions.
+
 ## Requirements
 
 - Xcode 16 or later. The project uses synchronized folders, so any file you add to a folder
@@ -38,6 +48,59 @@ Same-day timed events are skipped.
 
 Run the parser tests with ⌘U. They use Swift Testing.
 
+## Releasing
+
+Push a version tag, or run the **Release** workflow by hand with a version:
+
+```sh
+git tag v1.0.0 && git push origin v1.0.0
+```
+
+The workflow runs `bundle exec fastlane release` on a GitHub macOS runner. That lane installs
+the Developer ID certificate with match, archives the app, signs it with Developer ID,
+notarizes and staples it, and zips it. The workflow then publishes a GitHub release with the
+zip and commits `Casks/next-up.rb` (written by `Scripts/update-cask.sh`) to the default branch,
+which is what `brew install` reads.
+
+CI runs the tests on every push to `main` and on pull requests (`bundle exec fastlane test`,
+signed ad-hoc, no secrets needed).
+
+### One-time setup
+
+Signing follows Earful's setup: match stores the certificate in the private
+`fitz-biz/earful-certificates` repo, and Fastlane talks to Apple with an App Store Connect API
+key. Both apps sign as team `8353VT99LA`, so they share one Developer ID certificate.
+
+1. **Create the Developer ID Application certificate** in match (skip if the repo already has
+   one under `certs/developer_id_application`):
+
+   ```sh
+   mise install && bundle install
+   bundle exec fastlane certificates
+   ```
+
+   Apple only lets the Account Holder create Developer ID certificates. If the API refuses,
+   create it in Xcode (*Settings → Accounts → Manage Certificates → + → Developer ID
+   Application*), export it from Keychain Access as a `.p12`, and import it:
+
+   ```sh
+   bundle exec fastlane match import --type developer_id --platform macos --skip_provisioning_profiles
+   ```
+
+2. **Add these repository secrets** (Settings → Secrets and variables → Actions). They're the
+   same values Earful uses:
+
+   | Secret | What it is |
+   | --- | --- |
+   | `MATCH_PASSWORD` | Passphrase for the match repo |
+   | `MATCH_DEPLOY_KEY` | Private SSH key with read access to `earful-certificates` |
+   | `APP_STORE_CONNECT_API_KEY_ID` | App Store Connect API key ID |
+   | `APP_STORE_CONNECT_API_ISSUER_ID` | Its issuer ID |
+   | `APP_STORE_CONNECT_API_KEY` | The `.p8` key, base64-encoded |
+   | `APPLE_TEAM_ID` | Optional: `8353VT99LA`; otherwise read from the project |
+
+3. **Make the repo public** so Homebrew can download the release zip.
+
 ## Project layout
 
 | Folder | Target(s) | What's in it |
@@ -46,6 +109,8 @@ Run the parser tests with ⌘U. They use Swift Testing.
 | `NextUpWidget/` | Widget extension | The timeline provider and the small and medium widget views |
 | `Shared/` | App, widget, tests | Models, the iCal parser, feed fetching, App Group storage, formatting |
 | `NextUpTests/` | Unit tests | Parser and formatting tests |
+| `fastlane/` | — | `test`, `release`, `certificates` and `setup` lanes |
+| `.github/workflows/` | — | CI (tests) and Release (sign, notarize, publish, update the cask) |
 
 ### How data flows
 

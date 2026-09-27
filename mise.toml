@@ -1,0 +1,5 @@
+# Project tool versions. Run `mise install` to provision.
+# https://mise.jdx.dev/
+
+[tools]
+ruby = "3.3.6"
