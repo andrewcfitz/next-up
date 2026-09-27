@@ -64,8 +64,8 @@ private struct NextStayView: View {
             Text(stay.title)
                 .font(.subheadline.weight(.bold))
                 .lineLimit(2)
-            if let location = stay.location {
-                Text(location)
+            if let place = stay.place {
+                Text(place)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

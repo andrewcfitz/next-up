@@ -112,6 +112,50 @@ struct ICSParserTests {
         #expect(stays.first?.nights == 7)
     }
 
+    /// Matches the shape of the Louie feed: .NET-generated, Windows time zone names,
+    /// timed check-in/check-out, and multi-line (sometimes empty) addresses.
+    @Test func parsesLouieStyleFeed() {
+        let text = ics("""
+        BEGIN:VEVENT
+        DESCRIPTION:
+        DTEND;TZID=Central Standard Time:20261017T120000
+        DTSTAMP:20260926T233430Z
+        DTSTART;TZID=Central Standard Time:20261012T150000
+        LOCATION:123 Park Rd\\nSpringfield\\, MO\\n65801\\n
+        SEQUENCE:0
+        SUMMARY:Lakeside Park RV Campground - 409
+        UID:a
+        END:VEVENT
+        BEGIN:VEVENT
+        DESCRIPTION:
+        DTEND;TZID=America/Chicago:20261023T120000
+        DTSTART;TZID=America/Chicago:20261018T150000
+        LOCATION:\\n\\, \\n\\n
+        SUMMARY:Lakeside Park RV Campground - 406
+        UID:b
+        END:VEVENT
+        """)
+        var central = calendar
+        central.timeZone = TimeZone(identifier: "America/Chicago")!
+        let stays = ICSParser(calendar: central).stays(
+            from: text,
+            checkingInWithin: DateInterval(start: central.date(from: DateComponents(year: 2026, month: 9, day: 27))!, duration: 86_400 * 365)
+        )
+        #expect(stays.map(\.title) == ["Lakeside Park RV Campground - 409", "Lakeside Park RV Campground - 406"])
+        #expect(stays.first?.checkIn == central.date(from: DateComponents(year: 2026, month: 10, day: 12)))
+        #expect(stays.first?.checkOut == central.date(from: DateComponents(year: 2026, month: 10, day: 17)))
+        #expect(stays.first?.location == "123 Park Rd\nSpringfield, MO\n65801")
+        #expect(stays.first?.place == "Springfield, MO")
+        #expect(stays.last?.location == nil)
+    }
+
+    @Test func windowsTimeZoneNamesResolve() {
+        #expect(ICSDate.timeZone("Central Standard Time")?.identifier == "America/Chicago")
+        #expect(ICSDate.timeZone("Eastern Standard Time")?.identifier == "America/New_York")
+        #expect(ICSDate.timeZone("America/Denver")?.identifier == "America/Denver")
+        #expect(ICSDate.timeZone("Nowhere Standard Time") == nil)
+    }
+
     @Test func timedStayWithDuration() {
         let text = ics("""
         BEGIN:VEVENT

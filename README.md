@@ -32,7 +32,8 @@ Same-day timed events are skipped.
    `group.` identifier only works once it's registered in your provisioning profile. Without
    that, the shared container is unavailable and nothing is saved.
 4. Run the **NextUp** scheme. On first launch, with no feeds set up yet, the settings window
-   opens. After that the app lives in the menu bar only (`LSUIElement`), with no Dock icon.
+   opens. After that the app lives in the menu bar only (`LSUIElement`), with no Dock icon:
+   open settings from the tent icon, or by opening the app again while it's running.
 5. Add the widget from the desktop or Notification Center: *Edit Widgets → Next Up*.
 
 Run the parser tests with ⌘U. They use Swift Testing.
@@ -59,6 +60,7 @@ Run the parser tests with ⌘U. They use Swift Testing.
 ## Parser scope
 
 `ICSParser` handles line folding, text escaping, `VALUE=DATE` dates, timed dates (UTC or
-`TZID`), `DURATION`, Outlook's `X-MICROSOFT-CDO-ALLDAYEVENT`, cancelled events and nested
-`VALARM`s. It doesn't expand
+`TZID`, including Windows names like `Central Standard Time`), `DURATION`, Outlook's
+`X-MICROSOFT-CDO-ALLDAYEVENT`, cancelled events and nested `VALARM`s. Multi-line addresses are
+tidied up, and the widget and menu show just the "City, ST" line. It doesn't expand
 recurrence rules, since reservations don't repeat.

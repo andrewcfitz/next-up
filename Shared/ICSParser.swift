@@ -48,13 +48,13 @@ struct ICSParser {
         }
 
         let uid = event.first("UID")?.value ?? UUID().uuidString
-        let location = event.first("LOCATION").map { Self.unescape($0.value) }
+        let location = event.first("LOCATION").flatMap { Self.cleanAddress(Self.unescape($0.value)) }
         return Stay(
             id: "\(feed?.id.uuidString ?? "local")|\(uid)|\(ICSDate.dayStamp(checkIn, calendar: calendar))",
             title: Self.unescape(event.first("SUMMARY")?.value ?? "Untitled"),
             checkIn: checkIn,
             checkOut: checkOut,
-            location: location?.isEmpty == false ? location : nil,
+            location: location,
             feedID: feed?.id,
             feedName: feed?.name
         )
@@ -138,6 +138,17 @@ struct ICSParser {
         return Property(name: rawName.uppercased(), params: params, value: value)
     }
 
+    /// Trims each line of a multi-line address and drops blank or punctuation-only lines.
+    /// Some feeds send an empty address template like "\n, \n\n"; that becomes `nil`.
+    static func cleanAddress(_ text: String) -> String? {
+        let junk = CharacterSet.whitespaces.union(CharacterSet(charactersIn: ",;"))
+        let lines = text
+            .split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: junk) }
+            .filter { !$0.isEmpty }
+        return lines.isEmpty ? nil : lines.joined(separator: "\n")
+    }
+
     static func unescape(_ text: String) -> String {
         var result = ""
         var iterator = text.makeIterator()
@@ -191,13 +202,36 @@ enum ICSDate {
         var source = calendar
         if value.hasSuffix("Z") {
             source.timeZone = TimeZone(identifier: "UTC")!
-        } else if let tzid = property.params["TZID"], let zone = TimeZone(identifier: tzid) {
+        } else if let tzid = property.params["TZID"], let zone = timeZone(tzid) {
             source.timeZone = zone
         }
         let components = DateComponents(year: year, month: month, day: day, hour: hour, minute: minute, second: second)
         guard let date = source.date(from: components) else { return nil }
         return Parsed(date: date, isDateOnly: false)
     }
+
+    /// Resolves a `TZID`, including the Windows names that Outlook and .NET feeds use
+    /// (e.g. "Central Standard Time"), which `TimeZone(identifier:)` doesn't know.
+    static func timeZone(_ tzid: String) -> TimeZone? {
+        TimeZone(identifier: tzid) ?? windowsTimeZones[tzid].flatMap(TimeZone.init(identifier:))
+    }
+
+    private static let windowsTimeZones: [String: String] = [
+        "Eastern Standard Time": "America/New_York",
+        "US Eastern Standard Time": "America/Indiana/Indianapolis",
+        "Central Standard Time": "America/Chicago",
+        "Mountain Standard Time": "America/Denver",
+        "US Mountain Standard Time": "America/Phoenix",
+        "Pacific Standard Time": "America/Los_Angeles",
+        "Alaskan Standard Time": "America/Anchorage",
+        "Hawaiian Standard Time": "Pacific/Honolulu",
+        "Atlantic Standard Time": "America/Halifax",
+        "Newfoundland Standard Time": "America/St_Johns",
+        "Canada Central Standard Time": "America/Regina",
+        "Central Standard Time (Mexico)": "America/Mexico_City",
+        "Mountain Standard Time (Mexico)": "America/Mazatlan",
+        "Pacific Standard Time (Mexico)": "America/Tijuana",
+    ]
 
     /// Total seconds in an iCal `DURATION` such as `P1D`, `P2W` or `PT24H`.
     static func durationSeconds(_ value: String) -> Int? {

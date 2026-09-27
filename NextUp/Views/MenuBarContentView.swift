@@ -98,8 +98,8 @@ private struct NextStayCard: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(stay.title).font(.headline).lineLimit(2)
-                if let location = stay.location {
-                    Text(location).font(.callout).foregroundStyle(.secondary).lineLimit(1)
+                if let place = stay.place {
+                    Text(place).font(.callout).foregroundStyle(.secondary).lineLimit(1)
                 }
                 Text("\(StayFormatting.dates(stay)) · \(StayFormatting.nights(stay))")
                     .font(.callout)

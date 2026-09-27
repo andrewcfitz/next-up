@@ -32,6 +32,13 @@ struct Stay: Codable, Identifiable, Hashable, Sendable {
     var feedID: UUID?
     var feedName: String?
 
+    /// The most recognizable line of the address for tight spaces: the "City, ST" line
+    /// when there is one ("678 MO-147\nTroy, MO\n63379" → "Troy, MO"), else the first line.
+    var place: String? {
+        let lines = location?.split(whereSeparator: \.isNewline).map(String.init) ?? []
+        return lines.first { $0.contains(",") } ?? lines.first
+    }
+
     var nights: Int {
         max(1, Calendar.current.dateComponents([.day], from: checkIn, to: checkOut).day ?? 1)
     }
