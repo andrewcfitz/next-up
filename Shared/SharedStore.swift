@@ -74,7 +74,7 @@ struct AppSettings: Codable, Equatable {
 
     /// Minutes between background refreshes.
     var refreshInterval: Int = 60
-    var menuBarStyle: MenuBarStyle = .nextStay
+    var menuBarStyle: MenuBarStyle = .iconOnly
 }
 
 struct FeedStatus: Codable, Hashable, Sendable {

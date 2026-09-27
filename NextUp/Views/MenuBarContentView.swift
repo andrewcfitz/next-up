@@ -5,6 +5,7 @@ import SwiftUI
 struct MenuBarContentView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismiss) private var dismiss
 
     private let maxLater = 5
 
@@ -60,6 +61,7 @@ struct MenuBarContentView: View {
                     Task { await model.refresh() }
                 }
                 MenuButton("Settings…", shortcut: ",") {
+                    dismiss()
                     openWindow(id: SettingsView.windowID)
                     NSApp.activate()
                 }
