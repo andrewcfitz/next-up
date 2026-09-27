@@ -277,6 +277,20 @@ struct ICSParserTests {
         #expect(parser.stays(from: text, checkingInWithin: range).first?.url?.absoluteString == "https://example.com/reservations/42")
     }
 
+    /// Louie folds long URLs mid-word across lines, in both URL and DESCRIPTION.
+    @Test func readsFoldedURL() {
+        let text = "BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\n"
+            + "DESCRIPTION:https://example.com/campgrounds/019fee22-7baf-7f9f-be70-9b80f93c\r\n 92d0?view=upcoming\r\n"
+            + "DTEND;TZID=America/Chicago:20261017T120000\r\n"
+            + "DTSTART;TZID=America/Chicago:20261012T150000\r\n"
+            + "SUMMARY:Lakeside Park RV Campground - 409\r\n"
+            + "UID:a\r\n"
+            + "URL:https://example.com/campgrounds/019fee22-7baf-7f9f-be70-9b80f93c92d0?vie\r\n w=upcoming\r\n"
+            + "END:VEVENT\r\nEND:VCALENDAR\r\n"
+        let url = parser.stays(from: text, checkingInWithin: range).first?.url
+        #expect(url?.absoluteString == "https://example.com/campgrounds/019fee22-7baf-7f9f-be70-9b80f93c92d0?view=upcoming")
+    }
+
     @Test func fallsBackToLinkInDescription() {
         let text = ics("""
         BEGIN:VEVENT
