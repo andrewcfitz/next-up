@@ -138,7 +138,7 @@ struct ICSParserTests {
         let text = ics("""
         BEGIN:VEVENT
         UID:1
-        SUMMARY:Desert Sky Campground\; Site 12\\,
+        SUMMARY:Desert Sky Campground\\; Site 12\\,
           pull-through
         DTSTART;VALUE=DATE:20261012
         END:VEVENT
