@@ -1,14 +1,15 @@
 import Foundation
 
-/// A small iCalendar (RFC 5545) parser that extracts all-day events as stays.
+/// A small iCalendar (RFC 5545) parser that extracts campground stays.
 ///
-/// It understands line folding, text escaping, `VALUE=DATE` start/end dates and
-/// Outlook's `X-MICROSOFT-CDO-ALLDAYEVENT` flag. Timed and cancelled events are
-/// ignored, and recurrence rules aren't expanded (reservations don't repeat).
+/// A stay is an all-day event (`VALUE=DATE`, or Outlook's `X-MICROSOFT-CDO-ALLDAYEVENT`),
+/// or a timed event that spans at least one night. It understands line folding and text
+/// escaping. Same-day timed events and cancelled events are ignored, and recurrence rules
+/// aren't expanded (reservations don't repeat).
 struct ICSParser {
     var calendar: Calendar = .current
 
-    /// Parses `ics` and returns the all-day events that check in within `range`.
+    /// Parses `ics` and returns the stays that check in within `range`.
     func stays(from ics: String, checkingInWithin range: DateInterval, feed: CalendarFeed? = nil) -> [Stay] {
         Self.parseComponents(ics)
             .filter { $0.name == "VEVENT" }
@@ -24,15 +25,26 @@ struct ICSParser {
         else { return nil }
 
         let microsoftAllDay = event.first("X-MICROSOFT-CDO-ALLDAYEVENT")?.value.uppercased() == "TRUE"
-        guard start.isDateOnly || microsoftAllDay else { return nil }
-
+        let isAllDay = start.isDateOnly || microsoftAllDay
         let checkIn = calendar.startOfDay(for: start.date)
         let nextDay = calendar.date(byAdding: .day, value: 1, to: checkIn)!
-        var checkOut = nextDay
+
+        var checkOut: Date
         if let endProperty = event.first("DTEND"), let end = ICSDate.parse(endProperty, calendar: calendar) {
-            checkOut = max(calendar.startOfDay(for: end.date), nextDay)
-        } else if let duration = event.first("DURATION"), let days = ICSDate.durationDays(duration.value) {
-            checkOut = calendar.date(byAdding: .day, value: max(days, 1), to: checkIn)!
+            checkOut = calendar.startOfDay(for: end.date)
+        } else if let duration = event.first("DURATION"), let seconds = ICSDate.durationSeconds(duration.value) {
+            checkOut = calendar.startOfDay(for: calendar.date(byAdding: .second, value: seconds, to: start.date)!)
+        } else {
+            // An all-day event with no end lasts one day; a timed one is just a moment.
+            checkOut = isAllDay ? nextDay : checkIn
+        }
+
+        if isAllDay {
+            checkOut = max(checkOut, nextDay)
+        } else if checkOut <= checkIn {
+            // A timed event only counts as a stay if it runs past midnight,
+            // e.g. check-in at 2 PM Friday, check-out at 11 AM Monday.
+            return nil
         }
 
         let uid = event.first("UID")?.value ?? UUID().uuidString
@@ -187,9 +199,8 @@ enum ICSDate {
         return Parsed(date: date, isDateOnly: false)
     }
 
-    /// Whole days in an iCal `DURATION` such as `P1D`, `P2W` or `PT24H`.
-    static func durationDays(_ value: String) -> Int? {
-        var days = 0
+    /// Total seconds in an iCal `DURATION` such as `P1D`, `P2W` or `PT24H`.
+    static func durationSeconds(_ value: String) -> Int? {
         var seconds = 0
         var number = ""
         var inTime = false
@@ -202,16 +213,15 @@ enum ICSDate {
             number = ""
             switch character {
             case "T": inTime = true
-            case "W": days += amount * 7
-            case "D": days += amount
+            case "W": seconds += amount * 7 * 86_400
+            case "D": seconds += amount * 86_400
             case "H" where inTime: seconds += amount * 3600
             case "M" where inTime: seconds += amount * 60
             case "S" where inTime: seconds += amount
             default: break
             }
         }
-        days += seconds / 86_400
-        return days > 0 ? days : nil
+        return seconds > 0 ? seconds : nil
     }
 
     static func dayStamp(_ date: Date, calendar: Calendar) -> String {

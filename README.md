@@ -8,10 +8,11 @@ countdown to check-in, plus the campground, location, dates and number of nights
 - **Menu bar**: a tent icon, optionally followed by the next stay and its countdown. Click it for the full list.
 - **Settings window**: add, edit or disable feeds, and pick the refresh interval, the menu bar style and launch at login.
 
-A stay is any **all-day event** in a feed. Its check-in is the start date and its check-out is
-the end date, so an event from Oct 2 to Oct 5 is three nights. A stay that's already in
-progress is ignored: "next" always means the next check-in, today or later. Timed events are
-skipped.
+A stay is any **all-day event** in a feed, or a **timed event that runs past midnight** (such
+as check-in at 2 PM Friday and check-out at 11 AM Monday). Its check-in is the start date and
+its check-out is the end date, so an event from Oct 2 to Oct 5 is three nights. A stay that's
+already in progress is ignored: "next" always means the next check-in, today or later.
+Same-day timed events are skipped.
 
 ## Requirements
 
@@ -57,6 +58,7 @@ Run the parser tests with ⌘U. They use Swift Testing.
 
 ## Parser scope
 
-`ICSParser` handles line folding, text escaping, `VALUE=DATE` dates, `DURATION`, Outlook's
-`X-MICROSOFT-CDO-ALLDAYEVENT`, cancelled events and nested `VALARM`s. It doesn't expand
+`ICSParser` handles line folding, text escaping, `VALUE=DATE` dates, timed dates (UTC or
+`TZID`), `DURATION`, Outlook's `X-MICROSOFT-CDO-ALLDAYEVENT`, cancelled events and nested
+`VALARM`s. It doesn't expand
 recurrence rules, since reservations don't repeat.

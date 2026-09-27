@@ -65,7 +65,7 @@ struct ICSParserTests {
         #expect(parser.stays(from: text, checkingInWithin: range).first?.checkOut == day(2026, 10, 9))
     }
 
-    @Test func ignoresTimedEvents() {
+    @Test func ignoresSameDayTimedEvents() {
         let text = ics("""
         BEGIN:VEVENT
         UID:1
@@ -73,8 +73,55 @@ struct ICSParserTests {
         DTSTART:20261002T150000Z
         DTEND:20261002T160000Z
         END:VEVENT
+        BEGIN:VEVENT
+        UID:2
+        SUMMARY:No End
+        DTSTART:20261003T150000Z
+        END:VEVENT
         """)
         #expect(parser.stays(from: text, checkingInWithin: range).isEmpty)
+    }
+
+    @Test func timedOvernightEventIsAStay() {
+        let text = ics("""
+        BEGIN:VEVENT
+        UID:1
+        SUMMARY:Pine Hollow RV Resort
+        DTSTART;TZID=America/Denver:20261002T140000
+        DTEND;TZID=America/Denver:20261005T110000
+        END:VEVENT
+        """)
+        let stays = parser.stays(from: text, checkingInWithin: range)
+        #expect(stays.first?.checkIn == day(2026, 10, 2))
+        #expect(stays.first?.checkOut == day(2026, 10, 5))
+        #expect(stays.first?.nights == 3)
+    }
+
+    @Test func timedStayWithUTCTimesUsesLocalDates() {
+        // 2 PM to 11 AM Mountain Daylight Time, written in UTC.
+        let text = ics("""
+        BEGIN:VEVENT
+        UID:1
+        SUMMARY:Lakeside State Park
+        DTSTART:20261012T200000Z
+        DTEND:20261019T170000Z
+        END:VEVENT
+        """)
+        let stays = parser.stays(from: text, checkingInWithin: range)
+        #expect(stays.first?.checkIn == day(2026, 10, 12))
+        #expect(stays.first?.nights == 7)
+    }
+
+    @Test func timedStayWithDuration() {
+        let text = ics("""
+        BEGIN:VEVENT
+        UID:1
+        SUMMARY:Desert Sky
+        DTSTART;TZID=America/Denver:20261002T140000
+        DURATION:P2DT21H
+        END:VEVENT
+        """)
+        #expect(parser.stays(from: text, checkingInWithin: range).first?.checkOut == day(2026, 10, 5))
     }
 
     @Test func treatsOutlookAllDayFlagAsAllDay() {
