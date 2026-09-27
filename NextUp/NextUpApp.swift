@@ -21,6 +21,8 @@ struct NextUpApp: App {
                 .environment(model)
         }
         .windowResizability(.contentMinSize)
+        // Widget taps arrive as URLs; the delegate sends them to the browser, not this window.
+        .handlesExternalEvents(matching: [])
         // Next Up lives in the menu bar; only show settings on launch until a feed is set up.
         .defaultLaunchBehavior(model.feeds.isEmpty ? .presented : .suppressed)
     }
@@ -41,6 +43,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
         NotificationCenter.default.post(name: .showSettings, object: nil)
         return false
+    }
+
+    /// macOS routes widget taps through the containing app, even for web links, so pass
+    /// the reservation page on to the browser.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls where ["http", "https"].contains(url.scheme?.lowercased()) {
+            NSWorkspace.shared.open(url)
+        }
     }
 }
 
