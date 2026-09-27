@@ -7,15 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		366B8558C406BB30A0201976 /* NextUpWidgetExtension.appex in Embed Foundation Extensions */ = {
-			isa = PBXBuildFile;
-			fileRef = 855377FDE4AB70212E8473DA /* NextUpWidgetExtension.appex */;
-			settings = {
-				ATTRIBUTES = (
-					RemoveHeadersOnCopy,
-				);
-			};
-		};
+		366B8558C406BB30A0201976 /* NextUpWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 855377FDE4AB70212E8473DA /* NextUpWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,42 +35,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0C947A24F13EDD571DD8BE82 /* NextUpTests.xctest */ = {
-			isa = PBXFileReference;
-			explicitFileType = wrapper.cfbundle;
-			includeInIndex = 0;
-			path = NextUpTests.xctest;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		4EE10481494F7874AA365F8D /* NextUp.app */ = {
-			isa = PBXFileReference;
-			explicitFileType = wrapper.application;
-			includeInIndex = 0;
-			path = NextUp.app;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		855377FDE4AB70212E8473DA /* NextUpWidgetExtension.appex */ = {
-			isa = PBXFileReference;
-			explicitFileType = "wrapper.app-extension";
-			includeInIndex = 0;
-			path = NextUpWidgetExtension.appex;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
+		0C947A24F13EDD571DD8BE82 /* NextUpTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NextUpTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EE10481494F7874AA365F8D /* NextUp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextUp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		855377FDE4AB70212E8473DA /* NextUpWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NextUpWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3742A8A3F95DE165E58DAB78 /* Exceptions for "NextUp" folder in "NextUp" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				NextUp.entitlements,
-			);
-			target = F01C2E624E08A72BC055B46F /* NextUp */;
-		};
 		5EDDF18E214A8E17555A0AB2 /* Exceptions for "NextUpWidget" folder in "NextUpWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				NextUpWidget.entitlements,
 			);
 			target = D627CACEBFAAA465612B83CD /* NextUpWidgetExtension */;
 		};
@@ -87,9 +53,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		6A3DFCE7B700C4113EA18634 /* NextUp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				3742A8A3F95DE165E58DAB78 /* Exceptions for "NextUp" folder in "NextUp" target */,
-			);
 			path = NextUp;
 			sourceTree = "<group>";
 		};
@@ -198,8 +161,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				F77C874D59FAD55AB51E2097 /* NextUpWidget */,
 				F22A5DFE4D710FA2BF7B8D0C /* Shared */,
+				F77C874D59FAD55AB51E2097 /* NextUpWidget */,
 			);
 			name = NextUpWidgetExtension;
 			packageProductDependencies = (
@@ -243,13 +206,13 @@
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
-					F01C2E624E08A72BC055B46F = {
+					C706FA839F4C1F2316B35783 = {
 						CreatedOnToolsVersion = 16.0;
 					};
 					D627CACEBFAAA465612B83CD = {
 						CreatedOnToolsVersion = 16.0;
 					};
-					C706FA839F4C1F2316B35783 = {
+					F01C2E624E08A72BC055B46F = {
 						CreatedOnToolsVersion = 16.0;
 					};
 				};
@@ -338,10 +301,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = NextUp/NextUp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8353VT99LA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -437,9 +401,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = NextUpWidget/NextUpWidget.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8353VT99LA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NextUpWidget/Info.plist;
@@ -465,10 +430,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = NextUp/NextUp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8353VT99LA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -572,9 +538,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = NextUpWidget/NextUpWidget.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8353VT99LA;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NextUpWidget/Info.plist;
@@ -634,7 +601,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
 	};
 	rootObject = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
 }
