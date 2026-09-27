@@ -30,8 +30,10 @@ struct MenuBarContentView: View {
             .padding(.bottom, 10)
 
             if let next = stays.first {
-                NextStayCard(stay: next, now: model.now)
-                    .padding(.horizontal, 14)
+                StayLink(stay: next) {
+                    NextStayCard(stay: next, now: model.now)
+                }
+                .padding(.horizontal, 14)
 
                 let later = stays.dropFirst().prefix(maxLater)
                 if !later.isEmpty {
@@ -41,7 +43,12 @@ struct MenuBarContentView: View {
                         .padding(.horizontal, 14)
                         .padding(.top, 12)
                         .padding(.bottom, 4)
-                    ForEach(later) { LaterStayRow(stay: $0, now: model.now) }
+                    ForEach(later) { stay in
+                        StayLink(stay: stay) {
+                            LaterStayRow(stay: stay, now: model.now)
+                        }
+                        .padding(.horizontal, 8)
+                    }
                 }
             } else {
                 Text(model.feeds.isEmpty
@@ -132,8 +139,35 @@ private struct LaterStayRow: View {
                 .font(.callout.weight(.semibold))
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 6)
         .padding(.vertical, 5)
+    }
+}
+
+/// Makes a stay clickable when it has a link: opens it in the browser and closes the menu.
+private struct StayLink<Content: View>: View {
+    var stay: Stay
+    @ViewBuilder var content: Content
+    @Environment(\.openURL) private var openURL
+    @Environment(\.dismiss) private var dismiss
+    @State private var isHovered = false
+
+    var body: some View {
+        if let url = stay.url {
+            Button {
+                dismiss()
+                openURL(url)
+            } label: {
+                content
+                    .contentShape(Rectangle())
+                    .background(isHovered ? Color.primary.opacity(0.08) : .clear, in: RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+            .onHover { isHovered = $0 }
+            .help(url.absoluteString)
+        } else {
+            content
+        }
     }
 }
 

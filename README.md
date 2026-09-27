@@ -62,5 +62,7 @@ Run the parser tests with ⌘U. They use Swift Testing.
 `ICSParser` handles line folding, text escaping, `VALUE=DATE` dates, timed dates (UTC or
 `TZID`, including Windows names like `Central Standard Time`), `DURATION`, Outlook's
 `X-MICROSOFT-CDO-ALLDAYEVENT`, cancelled events and nested `VALARM`s. Multi-line addresses are
-tidied up, and the widget and menu show just the "City, ST" line. It doesn't expand
-recurrence rules, since reservations don't repeat.
+tidied up, and the widget and menu show just the "City, ST" line. A stay's link comes from
+the event's `URL` property, or else the first web link in its `DESCRIPTION`; clicking the stay
+in the menu or widget opens it. It doesn't expand recurrence rules, since reservations don't
+repeat.

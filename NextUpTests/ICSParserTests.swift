@@ -265,6 +265,38 @@ struct ICSParserTests {
         #expect(parser.stays(from: text, checkingInWithin: range).map(\.title) == ["With Alarm"])
     }
 
+    @Test func readsReservationLinkFromURLProperty() {
+        let text = ics("""
+        BEGIN:VEVENT
+        UID:1
+        SUMMARY:With URL
+        DTSTART;VALUE=DATE:20261002
+        URL:https://example.com/reservations/42
+        END:VEVENT
+        """)
+        #expect(parser.stays(from: text, checkingInWithin: range).first?.url?.absoluteString == "https://example.com/reservations/42")
+    }
+
+    @Test func fallsBackToLinkInDescription() {
+        let text = ics("""
+        BEGIN:VEVENT
+        UID:1
+        SUMMARY:Link In Description
+        DESCRIPTION:Site 409\\nDetails: https://example.com/r/409 (check-in 3pm)
+        DTSTART;VALUE=DATE:20261002
+        END:VEVENT
+        BEGIN:VEVENT
+        UID:2
+        SUMMARY:No Link
+        DESCRIPTION:
+        DTSTART;VALUE=DATE:20261003
+        END:VEVENT
+        """)
+        let stays = parser.stays(from: text, checkingInWithin: range)
+        #expect(stays.first?.url?.absoluteString == "https://example.com/r/409")
+        #expect(stays.last?.url == nil)
+    }
+
     @Test func webcalURLsAreFetchedOverHTTPS() {
         let feed = CalendarFeed(name: "Reservations", url: URL(string: "webcal://example.com/stays.ics")!)
         #expect(feed.fetchURL.absoluteString == "https://example.com/stays.ics")

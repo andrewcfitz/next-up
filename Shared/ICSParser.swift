@@ -56,8 +56,32 @@ struct ICSParser {
             checkOut: checkOut,
             location: location,
             feedID: feed?.id,
-            feedName: feed?.name
+            feedName: feed?.name,
+            url: link(for: event)
         )
+    }
+
+    /// The event's `URL` property, or else the first web link in its `DESCRIPTION`.
+    private func link(for event: Component) -> URL? {
+        if let value = event.first("URL")?.value, let url = Self.webURL(value) {
+            return url
+        }
+        guard let description = event.first("DESCRIPTION").map({ Self.unescape($0.value) }),
+              let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+        else { return nil }
+        let range = NSRange(description.startIndex..., in: description)
+        return detector.matches(in: description, range: range)
+            .compactMap { $0.url }
+            .first { ["http", "https"].contains($0.scheme?.lowercased()) }
+    }
+
+    static func webURL(_ text: String) -> URL? {
+        let trimmed = text.trimmingCharacters(in: .whitespaces)
+        guard let url = URL(string: trimmed),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https"
+        else { return nil }
+        return url
     }
 
     // MARK: - Content lines

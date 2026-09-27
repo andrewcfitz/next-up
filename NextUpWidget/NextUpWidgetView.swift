@@ -12,11 +12,14 @@ struct NextUpWidgetView: View {
                 HStack(spacing: 14) {
                     NextStayView(stay: next, now: entry.date, showsCheckOut: true)
                         .frame(width: 150, alignment: .leading)
+                        .linked(to: next.url)
                     Divider()
                     LaterStaysView(stays: Array(entry.upcoming.dropFirst().prefix(3)))
                 }
             default:
+                // A small widget is a single tap target.
                 NextStayView(stay: next, now: entry.date, showsCheckOut: false)
+                    .widgetURL(next.url)
             }
         } else {
             VStack(alignment: .leading, spacing: 6) {
@@ -111,6 +114,7 @@ private struct LaterStaysView: View {
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
+                .linked(to: stay.url)
             }
             Spacer(minLength: 0)
         }
@@ -124,5 +128,17 @@ private struct WidgetHeader: View {
             .font(.caption2.weight(.bold))
             .foregroundStyle(.tint)
             .imageScale(.small)
+    }
+}
+
+private extension View {
+    /// Wraps the view in a `Link` when there's a URL, so tapping it opens the reservation.
+    @ViewBuilder func linked(to url: URL?) -> some View {
+        if let url {
+            // Keep the text colors; a Link would otherwise tint its label with the accent color.
+            Link(destination: url) { self.foregroundStyle(.primary) }
+        } else {
+            self
+        }
     }
 }
