@@ -1,3 +1,3 @@
-app_identifier("com.andrewcfitz.NextUp")
+app_identifier("biz.fitz.NextUp")
 apple_id(ENV["FASTLANE_USER"]) if ENV["FASTLANE_USER"]
 team_id(ENV["APPLE_TEAM_ID"]) if ENV["APPLE_TEAM_ID"]

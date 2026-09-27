@@ -20,9 +20,9 @@ didn't have: Apple Developer, 1Password, GitHub repo settings and a Mac.
 - **Next Up** is a macOS menu bar app and widget (macOS 15+, Xcode 16+). It reads iCal feeds
   of campground reservations and counts down to the next check-in. The owner is going
   full-time in an RV.
-- Apple team: **`8353VT99LA`**. Bundle IDs: `com.andrewcfitz.NextUp` (app) and
-  `com.andrewcfitz.NextUp.Widget` (widget). App Group:
-  `$(TeamIdentifierPrefix)com.andrewcfitz.NextUp`.
+- Apple team: **`8353VT99LA`**. Bundle IDs: `biz.fitz.NextUp` (app) and
+  `biz.fitz.NextUp.Widget` (widget). App Group:
+  `$(TeamIdentifierPrefix)biz.fitz.NextUp`.
 - The release pipeline copies the owner's other app, **`fitz-biz/earful`**: Fastlane with
   `match` (git storage) and an App Store Connect API key. Both apps sign as the same team, so
   next-up **reuses Earful's match repo, `fitz-biz/earful-certificates`**, for a shared
@@ -34,7 +34,7 @@ didn't have: Apple Developer, 1Password, GitHub repo settings and a Mac.
 | --- | --- |
 | `fastlane/Fastfile` | Lanes: `test`, `release`, `certificates` (one-time), `setup` (read-only install) |
 | `fastlane/Matchfile` | `type developer_id`, `platform macos`, `skip_provisioning_profiles true`, git URL defaults to `earful-certificates` (override with `MATCH_GIT_URL`) |
-| `fastlane/Appfile` | App ID `com.andrewcfitz.NextUp` |
+| `fastlane/Appfile` | App ID `biz.fitz.NextUp` |
 | `Gemfile` / `Gemfile.lock` | fastlane 2.240.1; Ruby 3.3.6 via `mise.toml` |
 | `.github/workflows/ci.yml` | `fastlane test` on `macos-15`, on pushes to `main` and on PRs, signed ad-hoc (no secrets) |
 | `.github/workflows/release.yml` | On a `v*` tag or manual run with a `version` input: `fastlane release` → GitHub release with `NextUp-<version>.zip` → a second job commits `Casks/next-up.rb` to `main` |
@@ -57,6 +57,10 @@ builds and passes on `macos-15`. If a later run fails, fix it on a branch off `m
 disable or skip tests.
 
 ### 2. Put a Developer ID Application certificate in match
+
+`match` refuses to run until `biz.fitz.NextUp` is registered as an App ID, even with
+`skip_provisioning_profiles`. Register `biz.fitz.NextUp` and `biz.fitz.NextUp.Widget`
+(macOS, explicit) in the developer portal first.
 
 First check whether `fitz-biz/earful-certificates` already has one under
 `certs/developer_id_application/`. If so, skip this step. Otherwise, on a Mac with the repo
@@ -113,7 +117,7 @@ notarize** (macOS), then **Update Homebrew cask** (pushes `Casks/next-up.rb` to 
 brew tap andrewcfitz/next-up https://github.com/andrewcfitz/next-up
 brew install --cask next-up
 spctl --assess --verbose=2 --type execute /Applications/NextUp.app   # expect: accepted, Notarized Developer ID
-codesign -d --entitlements - /Applications/NextUp.app                # expect the 8353VT99LA.com.andrewcfitz.NextUp app group
+codesign -d --entitlements - /Applications/NextUp.app                # expect the 8353VT99LA.biz.fitz.NextUp app group
 ```
 
 Then open the app, add a feed, and confirm that:

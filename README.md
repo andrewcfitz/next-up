@@ -36,7 +36,7 @@ Gatekeeper warnings. `brew upgrade --cask next-up` picks up new versions.
 2. For both the **NextUp** and **NextUpWidgetExtension** targets, choose your team under
    *Signing & Capabilities*.
 3. The app and the widget share data through the App Group
-   `$(TeamIdentifierPrefix)com.andrewcfitz.NextUp`, set in `NextUp/NextUp.entitlements` and
+   `$(TeamIdentifierPrefix)biz.fitz.NextUp`, set in `NextUp/NextUp.entitlements` and
    `NextUpWidget/NextUpWidget.entitlements`; keep the two identical. The code reads the group
    from the entitlements at runtime. On macOS, use the Team ID prefix, not `group.`: a
    `group.` identifier only works once it's registered in your provisioning profile. Without

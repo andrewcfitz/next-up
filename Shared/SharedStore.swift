@@ -4,7 +4,7 @@ import Security
 /// Persistence shared between the app and the widget extension through an App Group.
 enum SharedStore {
     /// The App Group from this process's own entitlements (`NextUp.entitlements` and
-    /// `NextUpWidget.entitlements`), e.g. `ABCDE12345.com.andrewcfitz.NextUp`.
+    /// `NextUpWidget.entitlements`), e.g. `ABCDE12345.biz.fitz.NextUp`.
     ///
     /// It's read at runtime because the Team ID prefix is filled in at signing time.
     static let appGroupID: String? = {

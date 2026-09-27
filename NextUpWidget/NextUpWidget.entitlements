@@ -6,7 +6,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>$(TeamIdentifierPrefix)com.andrewcfitz.NextUp</string>
+		<string>$(TeamIdentifierPrefix)biz.fitz.NextUp</string>
 	</array>
 	<key>com.apple.security.network.client</key>
 	<true/>

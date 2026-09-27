@@ -21,12 +21,12 @@ cask "next-up" do
 
   app "NextUp.app"
 
-  uninstall quit: "com.andrewcfitz.NextUp"
+  uninstall quit: "biz.fitz.NextUp"
 
   zap trash: [
-    "~/Library/Containers/com.andrewcfitz.NextUp",
-    "~/Library/Containers/com.andrewcfitz.NextUp.Widget",
-    "~/Library/Group Containers/8353VT99LA.com.andrewcfitz.NextUp",
+    "~/Library/Containers/biz.fitz.NextUp",
+    "~/Library/Containers/biz.fitz.NextUp.Widget",
+    "~/Library/Group Containers/8353VT99LA.biz.fitz.NextUp",
   ]
 end
 CASK
