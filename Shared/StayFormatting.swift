@@ -33,9 +33,13 @@ enum StayFormatting {
         return "\(stay.checkIn.formatted(style)) – \(stay.checkOut.formatted(style))"
     }
 
-    /// "Oct 2".
-    static func checkInDay(_ stay: Stay) -> String {
-        stay.checkIn.formatted(.dateTime.month(.abbreviated).day())
+    /// Compact range for tight spaces: "Oct 12 – 17", or "Oct 30 – Nov 2" across months.
+    static func shortDates(_ stay: Stay, calendar: Calendar = .current) -> String {
+        let start = stay.checkIn.formatted(.dateTime.month(.abbreviated).day())
+        let endStyle: Date.FormatStyle = calendar.isDate(stay.checkIn, equalTo: stay.checkOut, toGranularity: .month)
+            ? .dateTime.day()
+            : .dateTime.month(.abbreviated).day()
+        return "\(start) – \(stay.checkOut.formatted(endStyle))"
     }
 }
 

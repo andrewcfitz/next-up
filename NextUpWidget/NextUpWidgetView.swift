@@ -80,12 +80,10 @@ private struct NextStayView: View {
     }
 
     private var detail: String {
-        let checkIn = stay.checkIn.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
-        if showsCheckOut {
-            let checkOut = stay.checkOut.formatted(.dateTime.month(.abbreviated).day())
-            return "\(StayFormatting.checkInDay(stay)) – \(checkOut) · \(StayFormatting.nights(stay))"
-        }
-        return "\(checkIn) · \(StayFormatting.nights(stay))"
+        let dates = showsCheckOut
+            ? StayFormatting.shortDates(stay)
+            : stay.checkIn.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+        return "\(dates) · \(StayFormatting.nights(stay))"
     }
 }
 
@@ -108,9 +106,10 @@ private struct LaterStaysView: View {
                     Text(stay.title)
                         .font(.caption.weight(.semibold))
                         .lineLimit(1)
-                    Text("\(StayFormatting.checkInDay(stay)) · \(StayFormatting.nights(stay))")
+                    Text("\(StayFormatting.shortDates(stay)) · \(StayFormatting.nights(stay))")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
             }
             Spacer(minLength: 0)
