@@ -121,7 +121,7 @@ platform :mac do
     UI.user_error!("Expected #{app} after export") unless File.directory?(app)
 
     # Notarizes and staples the ticket, so Gatekeeper accepts the app offline.
-    notarize(package: app, api_key: api_key, bundle_id: "biz.fitz.NextUp")
+    notarize(package: app, api_key: api_key)
     sh("spctl", "--assess", "--verbose=2", "--type", "execute", app)
 
     zip = File.join(build_dir, "NextUp-#{version}.zip")
