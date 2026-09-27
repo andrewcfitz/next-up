@@ -7,6 +7,7 @@ Get `andrewcfitz/next-up` to the point where a tagged release produces a signed,
 
 ```sh
 brew tap andrewcfitz/next-up https://github.com/andrewcfitz/next-up
+brew trust andrewcfitz/next-up
 brew install --cask next-up
 ```
 
@@ -115,6 +116,7 @@ notarize** (macOS), then **Update Homebrew cask** (pushes `Casks/next-up.rb` to 
 
 ```sh
 brew tap andrewcfitz/next-up https://github.com/andrewcfitz/next-up
+brew trust andrewcfitz/next-up
 brew install --cask next-up
 spctl --assess --verbose=2 --type execute /Applications/NextUp.app   # expect: accepted, Notarized Developer ID
 codesign -d --entitlements - /Applications/NextUp.app                # expect the 8353VT99LA.biz.fitz.NextUp app group

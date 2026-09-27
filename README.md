@@ -18,6 +18,7 @@ Same-day timed events are skipped.
 
 ```sh
 brew tap andrewcfitz/next-up https://github.com/andrewcfitz/next-up
+brew trust andrewcfitz/next-up
 brew install --cask next-up
 ```
 
