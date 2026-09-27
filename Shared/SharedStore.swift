@@ -1,13 +1,23 @@
 import Foundation
+import Security
 
 /// Persistence shared between the app and the widget extension through an App Group.
-///
-/// If you change the App Group identifier, update it here and in both
-/// `NextUp.entitlements` and `NextUpWidget.entitlements`.
 enum SharedStore {
-    static let appGroupID = "group.com.andrewcfitz.NextUp"
+    /// The App Group from this process's own entitlements (`NextUp.entitlements` and
+    /// `NextUpWidget.entitlements`), e.g. `ABCDE12345.com.andrewcfitz.NextUp`.
+    ///
+    /// It's read at runtime because the Team ID prefix is filled in at signing time.
+    static let appGroupID: String? = {
+        guard let task = SecTaskCreateFromSelf(nil),
+              let value = SecTaskCopyValueForEntitlement(task, "com.apple.security.application-groups" as CFString, nil),
+              let groups = value as? [String]
+        else { return nil }
+        return groups.first
+    }()
 
-    static let defaults: UserDefaults = UserDefaults(suiteName: appGroupID) ?? .standard
+    /// Falls back to the process's own defaults when there's no App Group (e.g. in unit tests),
+    /// in which case the app and widget won't see each other's data.
+    static let defaults: UserDefaults = appGroupID.flatMap { UserDefaults(suiteName: $0) } ?? .standard
 
     private enum Key {
         static let feeds = "feeds"

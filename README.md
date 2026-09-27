@@ -24,11 +24,12 @@ skipped.
 1. Open `NextUp.xcodeproj`.
 2. For both the **NextUp** and **NextUpWidgetExtension** targets, choose your team under
    *Signing & Capabilities*.
-3. The app and the widget share data through the App Group `group.com.andrewcfitz.NextUp`.
-   If you change the bundle identifiers, change the group in these three places too:
-   - `Shared/SharedStore.swift` (`appGroupID`)
-   - `NextUp/NextUp.entitlements`
-   - `NextUpWidget/NextUpWidget.entitlements`
+3. The app and the widget share data through the App Group
+   `$(TeamIdentifierPrefix)com.andrewcfitz.NextUp`, set in `NextUp/NextUp.entitlements` and
+   `NextUpWidget/NextUpWidget.entitlements`; keep the two identical. The code reads the group
+   from the entitlements at runtime. On macOS, use the Team ID prefix, not `group.`: a
+   `group.` identifier only works once it's registered in your provisioning profile. Without
+   that, the shared container is unavailable and nothing is saved.
 4. Run the **NextUp** scheme. On first launch, with no feeds set up yet, the settings window
    opens. After that the app lives in the menu bar only (`LSUIElement`), with no Dock icon.
 5. Add the widget from the desktop or Notification Center: *Edit Widgets → Next Up*.
