@@ -49,12 +49,12 @@ certificate → `build_app` archives the `NextUp` scheme with
 
 ## Tasks
 
-### 1. Confirm CI is green on `main`
+### 1. ~~Confirm CI is green on `main`~~ (done)
 
-Check the **CI** workflow run for the merge commit `fc2fd78`
-([Actions](https://github.com/andrewcfitz/next-up/actions)). This was the first time the
-project built on a real Mac runner. If it failed, fix it on a branch off `main` and open a PR.
-Don't disable or skip tests.
+CI passed on the merge commit `fc2fd78`
+([run](https://github.com/andrewcfitz/next-up/actions/runs/36339732073)): `fastlane test`
+builds and passes on `macos-15`. If a later run fails, fix it on a branch off `main`. Don't
+disable or skip tests.
 
 ### 2. Put a Developer ID Application certificate in match
 
