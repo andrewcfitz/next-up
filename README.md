@@ -1,8 +1,6 @@
 # Next Up
 
-A small macOS menu bar app and widget for full-time RVers. You subscribe it to one or more
-iCal feeds of campground reservations, and it tells you when your **next stay begins**: a
-countdown to check-in, plus the campground, location, dates and number of nights.
+A macOS menu bar app and widget plus an iPhone app with Home Screen and Lock Screen widgets, for full-time RVers. Subscribe to iCal feeds of campground reservations, and it tells you when your **next stay begins**: a countdown to check-in, plus the campground, location, dates and number of nights.
 
 - **Widget** (small and medium): a countdown to the next check-in. The medium size also lists the stays after it.
 - **Menu bar**: a tent icon, optionally followed by the next stay and its countdown. Click it for the full list.
@@ -128,6 +126,9 @@ key. Both apps sign as team `8353VT99LA`, so they share one Developer ID certifi
 | `Config/` | Dev and Prod xcconfigs: iOS bundle IDs, App Groups, display names |
 | `project.yml` | XcodeGen spec; generates `NextUp.xcodeproj` |
 | `NextUpTests/` | Swift Testing unit tests |
+| `Scripts/` | `generate.sh` (run XcodeGen) and `update-cask.sh` (write Homebrew cask after release) |
+| `Casks/` | `next-up.rb` Homebrew cask definition |
+| `docs/` | iOS setup guide and design specs |
 | `fastlane/` | Mac and iOS lanes for tests, release, certificates and setup |
 | `.github/workflows/` | CI (tests and iOS build on every PR/push to main) and Release (sign, notarize, publish, update the cask) |
 

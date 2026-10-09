@@ -52,4 +52,16 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           FASTLANE_HIDE_CHANGELOG: "true"
           FASTLANE_SKIP_UPDATE_CHECK: "true"
-        run: bundle exec fastlane ios beta
+        run: |
+          mkdir -p build
+          set -o pipefail
+          bundle exec fastlane ios beta 2>&1 | tee build/gym.log
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: build/gym.log
+          if-no-files-found: ignore
+          retention-days: 14
