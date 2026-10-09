@@ -63,7 +63,7 @@ macOS keeps `biz.fitz.NextUp`, `biz.fitz.NextUp.Widget` and `$(TeamIdentifierPre
 - `Shared/FeedRefresh.swift`: `FeedRefresh.run(feeds:previous:) async -> StaySnapshot` fetches, writes `SharedStore.snapshot`, and calls `WidgetCenter.shared.reloadAllTimelines()`. The Mac `AppModel.refresh()` and the iOS model both use it.
 - `Shared/RefreshRule.swift`: `widgetShouldFetch(snapshotAge: TimeInterval?, refreshMinutes: Int, hasEnabledFeeds: Bool) -> Bool`: no enabled feeds means no fetch; no snapshot means fetch; otherwise fetch when age `>= max(15, refreshMinutes) * 60`.
 - Lock Screen text in `StayFormatting`, tested:
-  - `inline(_ stay: Stay, now:) -> String`: "Pine Hollow · in 3d", "Pine Hollow · Today".
+  - `inline(_ stay: Stay, now:) -> String`: "in 3d · Pine Hollow", "Today · Pine Hollow". Countdown first, so a long title truncates instead of the countdown.
   - `rectangularLines(_ stay: Stay, now:) -> [String]`: [title, "in 3d · Fri Oct 16" (or "Today · Fri Oct 16"), place when present].
   - Countdown inside these uses `Today`, `in Nd` (`1d` reads "in 1d"); line 2 never exceeds 24 characters.
 
