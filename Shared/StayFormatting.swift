@@ -49,7 +49,7 @@ enum StayFormatting {
     }
 
     static func inline(_ stay: Stay, now: Date, calendar: Calendar = .current) -> String {
-        "\(stay.title) · \(compactCountdown(stay, now: now, calendar: calendar))"
+        "\(compactCountdown(stay, now: now, calendar: calendar)) · \(stay.title)"
     }
 
     static func rectangularLines(_ stay: Stay, now: Date, calendar: Calendar = .current, locale: Locale = .current) -> [String] {

@@ -18,8 +18,8 @@ struct LockScreenFormattingTests {
 
     @Test func inlineCountsDays() {
         let now = day(2026, 10, 13)
-        #expect(StayFormatting.inline(stay("Pine Hollow", checkIn: day(2026, 10, 16)), now: now, calendar: calendar) == "Pine Hollow · in 3d")
-        #expect(StayFormatting.inline(stay("Pine Hollow", checkIn: day(2026, 10, 13)), now: now, calendar: calendar) == "Pine Hollow · Today")
+        #expect(StayFormatting.inline(stay("Pine Hollow", checkIn: day(2026, 10, 16)), now: now, calendar: calendar) == "in 3d · Pine Hollow")
+        #expect(StayFormatting.inline(stay("Pine Hollow", checkIn: day(2026, 10, 13)), now: now, calendar: calendar) == "Today · Pine Hollow")
     }
 
     @Test func rectangularLines() {
