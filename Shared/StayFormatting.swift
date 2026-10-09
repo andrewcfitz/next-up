@@ -41,6 +41,23 @@ enum StayFormatting {
             : .dateTime.month(.abbreviated).day()
         return "\(start) – \(stay.checkOut.formatted(endStyle))"
     }
+
+    /// Lock Screen countdown: "Today", "in 3d". Never "Tomorrow"; it doesn't fit beside a date.
+    private static func compactCountdown(_ stay: Stay, now: Date, calendar: Calendar) -> String {
+        let days = daysUntil(stay, now: now, calendar: calendar)
+        return days == 0 ? "Today" : "in \(days)d"
+    }
+
+    static func inline(_ stay: Stay, now: Date, calendar: Calendar = .current) -> String {
+        "\(stay.title) · \(compactCountdown(stay, now: now, calendar: calendar))"
+    }
+
+    static func rectangularLines(_ stay: Stay, now: Date, calendar: Calendar = .current, locale: Locale = .current) -> [String] {
+        let style = Date.FormatStyle(locale: locale, calendar: calendar, timeZone: calendar.timeZone)
+            .weekday(.abbreviated).month(.abbreviated).day()
+        let when = "\(compactCountdown(stay, now: now, calendar: calendar)) · \(stay.checkIn.formatted(style))"
+        return [stay.title, when] + [stay.place].compactMap { $0 }
+    }
 }
 
 extension Array where Element == Stay {
