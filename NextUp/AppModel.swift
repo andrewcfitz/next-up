@@ -56,16 +56,16 @@ final class AppModel {
     // MARK: Feeds
 
     func addFeed(_ feed: CalendarFeed) {
-        feeds.append(feed)
+        feeds = feeds.upserting(feed)
     }
 
     func updateFeed(_ feed: CalendarFeed) {
-        guard let index = feeds.firstIndex(where: { $0.id == feed.id }) else { return }
-        feeds[index] = feed
+        guard feeds.contains(where: { $0.id == feed.id }) else { return }
+        feeds = feeds.upserting(feed)
     }
 
     func removeFeeds(_ ids: Set<CalendarFeed.ID>) {
-        feeds.removeAll { ids.contains($0.id) }
+        feeds = feeds.removing(ids)
     }
 
     // MARK: Refreshing
@@ -81,12 +81,9 @@ final class AppModel {
         repeat {
             needsAnotherRefresh = false
             now = .now
-            let result = await FeedService().fetch(feeds, previous: snapshot)
+            let result = await FeedRefresh.run(feeds: feeds, previous: snapshot)
             snapshot = result
-            SharedStore.snapshot = result
         } while needsAnotherRefresh
-
-        WidgetCenter.shared.reloadAllTimelines()
     }
 
     private func startRefreshLoop() {

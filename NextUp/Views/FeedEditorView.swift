@@ -35,13 +35,7 @@ struct FeedEditorView: View {
     }
 
     private var url: URL? {
-        let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let url = URL(string: trimmed),
-              let scheme = url.scheme?.lowercased(),
-              ["http", "https", "webcal", "webcals"].contains(scheme),
-              url.host() != nil
-        else { return nil }
-        return url
+        CalendarFeed.validatedURL(urlString)
     }
 
     var body: some View {
@@ -71,18 +65,8 @@ struct FeedEditorView: View {
     }
 
     private func save() {
-        guard let url else { return }
-        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let displayName = trimmedName.isEmpty ? (url.host() ?? "Calendar") : trimmedName
-
-        var feed: CalendarFeed
-        if case .edit(let existing) = mode {
-            feed = existing
-            feed.name = displayName
-            feed.url = url
-        } else {
-            feed = CalendarFeed(name: displayName, url: url)
-        }
+        let existingFeed: CalendarFeed? = if case .edit(let existing) = mode { existing } else { nil }
+        guard let feed = CalendarFeed.edited(name: name, urlText: urlString, from: existingFeed) else { return }
         onSave(feed)
         dismiss()
     }
