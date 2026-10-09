@@ -55,6 +55,10 @@ struct ContentView: View {
                         }
                         .contentShape(Rectangle())
                         .onTapGesture { editing = .edit(feed) }
+                        .swipeActions(edge: .leading) {
+                            Button("Edit") { editing = .edit(feed) }.tint(.blue)
+                        }
+                        .accessibilityAction(named: "Edit") { editing = .edit(feed) }
                     }
                     .onDelete { offsets in
                         model.remove(Set(offsets.map { model.feeds[$0].id }))
