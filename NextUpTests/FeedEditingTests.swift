@@ -15,6 +15,13 @@ struct FeedEditingTests {
         #expect(CalendarFeed.validatedURL("https://") == nil)
     }
 
+    @Test func httpFeedsAreFetchedOverHTTPS() {
+        let http = CalendarFeed(name: "Test", url: URL(string: "http://example.com/a.ics")!)
+        #expect(http.fetchURL == URL(string: "https://example.com/a.ics"))
+        #expect(CalendarFeed(name: "Test", url: URL(string: "webcal://example.com/a.ics")!).fetchURL == URL(string: "https://example.com/a.ics"))
+        #expect(CalendarFeed(name: "Test", url: URL(string: "https://example.com/a.ics")!).fetchURL == URL(string: "https://example.com/a.ics"))
+    }
+
     @Test func newFeedNamesFallBackToTheHost() throws {
         let feed = try #require(CalendarFeed.edited(name: "  ", urlText: "webcal://cal.example.com/x.ics", from: nil))
         #expect(feed.name == "cal.example.com")

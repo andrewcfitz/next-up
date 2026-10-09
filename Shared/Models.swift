@@ -7,11 +7,10 @@ struct CalendarFeed: Codable, Identifiable, Hashable, Sendable {
     var url: URL
     var isEnabled: Bool = true
 
-    /// `webcal://` is just `https://` with a different hat on.
+    /// `webcal://` is just `https://` with a different hat on. App Transport Security blocks http, so upgrade it.
     var fetchURL: URL {
-        guard let scheme = url.scheme?.lowercased(), scheme == "webcal" || scheme == "webcals" else {
-            return url
-        }
+        guard let scheme = url.scheme?.lowercased() else { return url }
+        guard scheme == "webcal" || scheme == "webcals" || scheme == "http" else { return url }
         var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         components?.scheme = "https"
         return components?.url ?? url
