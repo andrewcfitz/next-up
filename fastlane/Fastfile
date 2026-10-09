@@ -259,7 +259,7 @@ platform :ios do
       })
       group = app.get_beta_groups.find(&:is_internal_group) || UI.user_error!("Internal group missing after create")
     end
-    user = Spaceship::ConnectAPI::User.all.find { |u| u.username.casecmp?(email) || u.email.to_s.casecmp?(email) }
+    user = Spaceship::ConnectAPI::User.all.find { |u| u.username.to_s.casecmp?(email) || u.email.to_s.casecmp?(email) }
     UI.user_error!("#{email} is not an App Store Connect user on this team") unless user
     Spaceship::ConnectAPI.post_beta_tester_assignment(
       beta_group_ids: [group.id],
