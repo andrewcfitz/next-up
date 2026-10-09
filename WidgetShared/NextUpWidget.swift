@@ -1,15 +1,14 @@
 import SwiftUI
 import WidgetKit
 
-@main
-struct NextUpWidgetBundle: WidgetBundle {
-    var body: some Widget {
-        NextUpWidget()
-    }
-}
-
 struct NextUpWidget: Widget {
     let kind = "NextUpWidget"
+
+    #if os(iOS)
+    static let families: [WidgetFamily] = [.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline]
+    #else
+    static let families: [WidgetFamily] = [.systemSmall, .systemMedium]
+    #endif
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
@@ -18,7 +17,7 @@ struct NextUpWidget: Widget {
         }
         .configurationDisplayName("Next Stay")
         .description("Counts down to your next campground check-in.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies(Self.families)
     }
 }
 

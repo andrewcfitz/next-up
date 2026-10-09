@@ -6,6 +6,19 @@ struct NextUpWidgetView: View {
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
+        #if os(iOS)
+        switch family {
+        case .accessoryInline, .accessoryRectangular:
+            AccessoryView(entry: entry, family: family)
+        default:
+            systemBody
+        }
+        #else
+        systemBody
+        #endif
+    }
+
+    @ViewBuilder private var systemBody: some View {
         if let next = entry.upcoming.first {
             switch family {
             case .systemMedium:
@@ -121,6 +134,35 @@ private struct LaterStaysView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
+
+#if os(iOS)
+struct AccessoryView: View {
+    var entry: Entry
+    var family: WidgetFamily
+
+    var body: some View {
+        if let next = entry.upcoming.first {
+            if family == .accessoryInline {
+                Text(StayFormatting.inline(next, now: entry.date))
+            } else {
+                let lines = StayFormatting.rectangularLines(next, now: entry.date)
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(lines.indices, id: \.self) { index in
+                        Text(lines[index])
+                            .font(index == 0 ? .headline : .caption)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .widgetURL(next.url)
+            }
+        } else {
+            Text(entry.hasFeeds ? "No upcoming stays" : "Add a feed in Next Up")
+        }
+    }
+}
+#endif
 
 private struct WidgetHeader: View {
     var body: some View {

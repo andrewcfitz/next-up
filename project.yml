@@ -55,6 +55,7 @@ targets:
     platform: macOS
     sources:
       - NextUpWidget
+      - WidgetShared
       - Shared
     settings:
       base:
