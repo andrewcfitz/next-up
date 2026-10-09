@@ -58,10 +58,10 @@ struct ContentView: View {
                         .swipeActions(edge: .leading) {
                             Button("Edit") { editing = .edit(feed) }.tint(.blue)
                         }
+                        .swipeActions(edge: .trailing) {
+                            Button("Delete", role: .destructive) { model.remove([feed.id]) }
+                        }
                         .accessibilityAction(named: "Edit") { editing = .edit(feed) }
-                    }
-                    .onDelete { offsets in
-                        model.remove(Set(offsets.map { model.feeds[$0].id }))
                     }
                     Button("Add Feed") { editing = .add }
                 }
