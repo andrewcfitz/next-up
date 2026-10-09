@@ -135,3 +135,136 @@ platform :mac do
     UI.success("Notarized release: #{zip}")
   end
 end
+
+platform :ios do
+  # Values live in the xcconfigs so the project and the lanes can't disagree.
+  def xcconfig_value(env, key)
+    path = File.expand_path("../Config/#{env == 'prod' ? 'Prod' : 'Dev'}.xcconfig", __dir__)
+    line = File.readlines(path).find { |l| l.match?(/\A#{Regexp.escape(key)}\s*=/) }
+    UI.user_error!("#{key} missing from #{path}") unless line
+    line.split("=", 2).last.strip
+  end
+
+  def ios_ids(env)
+    app = xcconfig_value(env, "NEXTUP_IOS_BUNDLE_ID")
+    [app, "#{app}.Widget"]
+  end
+
+  def ios_apple_id
+    ENV["FASTLANE_USER"].to_s.empty? ? UI.user_error!("Set FASTLANE_USER to your Apple ID") : ENV["FASTLANE_USER"]
+  end
+
+  desc "One-time, run locally: register the iOS App IDs and App Groups for prod and dev."
+  lane :bootstrap do
+    team = nextup_team_id
+    creds = "-u #{ios_apple_id} -b #{team}"
+    %w[prod dev].each do |env|
+      group = xcconfig_value(env, "NEXTUP_APP_GROUP")
+      name = xcconfig_value(env, "NEXTUP_DISPLAY_NAME")
+      UI.header("#{env}: #{ios_ids(env).join(', ')}")
+      # The in-process produce calls go first: they are the only ones that can prompt for the Apple ID
+      # password and 2FA code. The `sh` subprocesses below get no terminal and reuse the cached login.
+      ios_ids(env).each do |bundle_id|
+        produce(app_identifier: bundle_id, app_name: bundle_id.end_with?(".Widget") ? "#{name} Widget" : name,
+                username: ios_apple_id, team_id: team, skip_itc: true, sku: bundle_id, language: "en-US", platform: "ios")
+      end
+      sh("fastlane produce group #{creds} -g #{group} -n \"#{name} group\"")
+      ios_ids(env).each do |bundle_id|
+        # Enable before associating: enabling App Groups clears the groups already selected on the App ID,
+        # which yields a profile with an empty application-groups entitlement. Learned the hard way in Earful.
+        sh("fastlane produce enable_services #{creds} -a #{bundle_id} --app-group")
+        sh("fastlane produce associate_group #{creds} -a #{bundle_id} #{group}")
+      end
+    end
+    UI.success("App IDs and groups ready. Next: bundle exec fastlane ios appstore_record, then ios certificates")
+  end
+
+  desc "Create the App Store Connect record TestFlight needs. Names are unique across the App Store;"
+  desc "set NEXTUP_ASC_NAME if 'Next Up' is taken. The home screen name comes from the xcconfig."
+  lane :appstore_record do
+    bundle_id = ios_ids("prod").first
+    produce(app_identifier: bundle_id, app_name: ENV.fetch("NEXTUP_ASC_NAME", "Next Up"),
+            username: ios_apple_id, team_id: nextup_team_id, skip_devcenter: true,
+            sku: bundle_id, language: "en-US", platform: "ios")
+  end
+
+  desc "Create or renew iOS development and App Store profiles in the match repo."
+  lane :certificates do
+    ids = ios_ids("prod") + ios_ids("dev")
+    %w[development appstore].each do |type|
+      match(type: type, platform: "ios", app_identifier: ids, readonly: false,
+            skip_provisioning_profiles: false, api_key: asc_api_key)
+    end
+  end
+
+  desc "Install iOS certificates and profiles on this Mac. Read-only."
+  lane :setup do
+    ids = ios_ids("prod") + ios_ids("dev")
+    %w[development appstore].each do |type|
+      match(type: type, platform: "ios", app_identifier: ids, readonly: true, skip_provisioning_profiles: false)
+    end
+  end
+
+  desc "Build the prod app and upload it to TestFlight. Used by the TestFlight workflow."
+  lane :beta do
+    setup_ci if ENV["CI"]
+    api_key = asc_api_key
+    team = nextup_team_id
+    app_id, widget_id = ios_ids("prod")
+
+    match(type: "appstore", platform: "ios", app_identifier: [app_id, widget_id], readonly: true,
+          skip_provisioning_profiles: false, api_key: api_key, team_id: team)
+
+    build_number = latest_testflight_build_number(api_key: api_key, app_identifier: app_id,
+                                                  platform: "ios", initial_build_number: 0) + 1
+
+    build_app(
+      project: project_path,
+      scheme: "NextUpiOS",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: build_dir,
+      output_name: "NextUp",
+      clean: true,
+      xcargs: "DEVELOPMENT_TEAM=#{team} CURRENT_PROJECT_VERSION=#{build_number}",
+      export_options: {
+        method: "app-store",
+        signingStyle: "manual",
+        teamID: team,
+        provisioningProfiles: {
+          app_id => "match AppStore #{app_id}",
+          widget_id => "match AppStore #{widget_id}"
+        }
+      }
+    )
+
+    upload_to_testflight(api_key: api_key, skip_waiting_for_build_processing: true, distribute_external: false)
+  end
+
+  desc "Create an internal TestFlight group that gets every build and add TESTER_EMAIL (an App Store Connect user)."
+  lane :internal_testers do
+    asc_api_key
+    email = ENV["TESTER_EMAIL"].to_s
+    UI.user_error!("Set TESTER_EMAIL to an App Store Connect user's email") if email.empty?
+    app = Spaceship::ConnectAPI::App.find(ios_ids("prod").first) || UI.user_error!("No App Store Connect app yet; run ios appstore_record")
+    group = app.get_beta_groups.find(&:is_internal_group)
+    unless group
+      # spaceship's create_beta_group always sends public-link fields, which Apple rejects for internal groups.
+      Spaceship::ConnectAPI.test_flight_request_client.post("v1/betaGroups", {
+        data: {
+          type: "betaGroups",
+          attributes: { name: "Internal", isInternalGroup: true, hasAccessToAllBuilds: true },
+          relationships: { app: { data: { type: "apps", id: app.id } } }
+        }
+      })
+      group = app.get_beta_groups.find(&:is_internal_group) || UI.user_error!("Internal group missing after create")
+    end
+    user = Spaceship::ConnectAPI::User.all.find { |u| u.username.casecmp?(email) || u.email.to_s.casecmp?(email) }
+    UI.user_error!("#{email} is not an App Store Connect user on this team") unless user
+    Spaceship::ConnectAPI.post_beta_tester_assignment(
+      beta_group_ids: [group.id],
+      attributes: { email: user.email || user.username, firstName: user.first_name, lastName: user.last_name }
+    )
+    UI.success("#{email} is in the #{group.name} TestFlight group")
+  end
+end
