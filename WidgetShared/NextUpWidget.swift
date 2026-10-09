@@ -72,7 +72,7 @@ struct Provider: TimelineProvider {
         let age = cached.map { Date.now.timeIntervalSince($0.fetchedAt) }
         guard RefreshRule.widgetShouldFetch(snapshotAge: age, refreshMinutes: SharedStore.settings.refreshInterval,
                                             hasEnabledFeeds: feeds.contains(where: \.isEnabled)) else { return cached }
-        return await FeedRefresh.run(feeds: feeds, previous: cached)
+        return await FeedRefresh.run(feeds: feeds, previous: cached, reloadWidgets: false)
     }
 
     private func entry(from snapshot: StaySnapshot?, at date: Date) -> Entry {
