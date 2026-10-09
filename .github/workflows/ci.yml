@@ -43,3 +43,9 @@ jobs:
           FASTLANE_HIDE_CHANGELOG: "true"
           FASTLANE_SKIP_UPDATE_CHECK: "true"
         run: bundle exec fastlane test
+
+      - name: Build iOS app (simulator, unsigned)
+        run: |
+          Scripts/generate.sh
+          xcodebuild build -project NextUp.xcodeproj -scheme NextUpiOS -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
