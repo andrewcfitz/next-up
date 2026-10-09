@@ -3,3 +3,4 @@
 
 [tools]
 ruby = "3.3.6"
+xcodegen = "2.46.0"

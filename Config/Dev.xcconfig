@@ -1,0 +1,4 @@
+// Debug builds. Lets a development build sit next to the TestFlight one on a phone.
+NEXTUP_IOS_BUNDLE_ID = biz.fitz.NextUp.dev
+NEXTUP_APP_GROUP = group.biz.fitz.NextUp.dev
+NEXTUP_DISPLAY_NAME = Next Up Dev

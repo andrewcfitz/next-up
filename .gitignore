@@ -9,6 +9,7 @@ xcuserdata/
 *.ipa
 *.dSYM.zip
 *.dSYM
+NextUp.xcodeproj/
 
 # Swift Package Manager
 .build/

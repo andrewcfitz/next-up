@@ -33,21 +33,21 @@ Gatekeeper warnings. `brew upgrade --cask next-up` picks up new versions.
 
 ## Getting started
 
-1. Open `NextUp.xcodeproj`.
-2. For both the **NextUp** and **NextUpWidgetExtension** targets, choose your team under
-   *Signing & Capabilities*.
-3. The app and the widget share data through the App Group
-   `$(TeamIdentifierPrefix)biz.fitz.NextUp`, set in `NextUp/NextUp.entitlements` and
-   `NextUpWidget/NextUpWidget.entitlements`; keep the two identical. The code reads the group
-   from the entitlements at runtime. On macOS, use the Team ID prefix, not `group.`: a
-   `group.` identifier only works once it's registered in your provisioning profile. Without
-   that, the shared container is unavailable and nothing is saved.
+1. Run `Scripts/generate.sh` to generate `NextUp.xcodeproj` from `project.yml` (the source of truth).
+2. Open `NextUp.xcodeproj`.
+3. The team is configured in `project.yml`, not in Signing & Capabilities. The app and the widget
+   share data through the App Group `$(TeamIdentifierPrefix)biz.fitz.NextUp`, set in
+   `NextUp/NextUp.entitlements` and `NextUpWidget/NextUpWidget.entitlements`; keep the two
+   identical. The code reads the group from the entitlements at runtime. On macOS, use the Team
+   ID prefix, not `group.`: a `group.` identifier only works once it's registered in your
+   provisioning profile. Without that, the shared container is unavailable and nothing is saved.
 4. Run the **NextUp** scheme. On first launch, with no feeds set up yet, the settings window
    opens. After that the app lives in the menu bar only (`LSUIElement`), with no Dock icon:
    open settings from the tent icon, or by opening the app again while it's running.
 5. Add the widget from the desktop or Notification Center: *Edit Widgets → Next Up*.
 
-Run the parser tests with ⌘U. They use Swift Testing.
+Run the parser tests with ⌘U. They use Swift Testing. Any Fastlane lane regenerates the project
+before running.
 
 ## Releasing
 

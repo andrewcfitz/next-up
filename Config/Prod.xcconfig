@@ -1,0 +1,4 @@
+// Release builds, including TestFlight.
+NEXTUP_IOS_BUNDLE_ID = biz.fitz.NextUp
+NEXTUP_APP_GROUP = group.biz.fitz.NextUp
+NEXTUP_DISPLAY_NAME = Next Up
