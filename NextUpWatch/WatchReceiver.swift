@@ -29,9 +29,12 @@ final class WatchReceiver: NSObject, WCSessionDelegate, @unchecked Sendable {
 
     private func apply(_ dictionary: [String: Any]) {
         guard let payload = WatchPayload(dictionary: dictionary) else { return }
-        SharedStore.feeds = payload.feeds
-        SharedStore.snapshot = WatchPayload.newer(payload.snapshot, than: SharedStore.snapshot)
-        WidgetCenter.shared.reloadAllTimelines()
-        Task { @MainActor in self.onUpdate?() }
+        // On the main actor so the read-then-write of the snapshot can't interleave with the model's refresh.
+        Task { @MainActor in
+            SharedStore.feeds = payload.feeds
+            SharedStore.snapshot = WatchPayload.newer(payload.snapshot, than: SharedStore.snapshot)
+            WidgetCenter.shared.reloadAllTimelines()
+            onUpdate?()
+        }
     }
 }
