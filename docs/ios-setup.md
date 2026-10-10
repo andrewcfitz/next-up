@@ -91,3 +91,14 @@ Debug builds use `Config/Dev.xcconfig` (`biz.fitz.NextUp.dev`, "Next Up Dev") so
 ## Note: Mac and iOS apps use separate App Groups
 
 The macOS app uses the App Group `$(TeamIdentifierPrefix)biz.fitz.NextUp` (team-prefixed, checked against the signature). The iOS app uses `group.biz.fitz.NextUp` (plain `group.` prefix). They are separate container paths on separate devices and do not share or sync feeds. Step 2 (bootstrap) sets the iOS App Group on the shared `biz.fitz.NextUp` App ID, which does not affect the Mac app's signature or provisioning.
+
+## Apple Watch
+
+The watch app and its complications ship inside the iPhone app, so TestFlight installs them together. They need two more App IDs per environment (`<bundle id>.watchkitapp` and `<bundle id>.watchkitapp.Widget`) in the same App Group, and profiles for them. Once, before the first TestFlight build that includes the watch, rerun with the same exports as above:
+
+    bundle exec fastlane ios bootstrap
+    bundle exec fastlane ios certificates
+
+Both are safe to rerun; existing IDs and profiles are kept.
+
+Feeds are managed on the iPhone only. After each refresh the iPhone app sends its feeds and stays to the watch; the complication also fetches on its own when its data is older than the refresh interval. Add a complication from the watch face editor (Next Stay: circular, corner, rectangular or inline) or the Smart Stack.

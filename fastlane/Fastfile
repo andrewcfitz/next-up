@@ -147,7 +147,14 @@ platform :ios do
 
   def ios_ids(env)
     app = xcconfig_value(env, "NEXTUP_IOS_BUNDLE_ID")
-    [app, "#{app}.Widget"]
+    [app, "#{app}.Widget", "#{app}.watchkitapp", "#{app}.watchkitapp.Widget"]
+  end
+
+  # Longest suffix first: the watch widget's ID also ends in ".Widget".
+  def ios_app_name(bundle_id, name)
+    suffix = { ".watchkitapp.Widget" => " Watch Widget", ".watchkitapp" => " Watch", ".Widget" => " Widget" }
+             .find { |s, _| bundle_id.end_with?(s) }&.last
+    "#{name}#{suffix}"
   end
 
   def ios_apple_id
@@ -165,7 +172,7 @@ platform :ios do
       # The in-process produce calls go first: they are the only ones that can prompt for the Apple ID
       # password and 2FA code. The `sh` subprocesses below get no terminal and reuse the cached login.
       ios_ids(env).each do |bundle_id|
-        produce(app_identifier: bundle_id, app_name: bundle_id.end_with?(".Widget") ? "#{name} Widget" : name,
+        produce(app_identifier: bundle_id, app_name: ios_app_name(bundle_id, name),
                 username: ios_apple_id, team_id: team, skip_itc: true, sku: bundle_id, language: "en-US", platform: "ios")
       end
       sh("fastlane produce group #{creds} -g #{group} -n \"#{name} group\"")
@@ -210,9 +217,10 @@ platform :ios do
     setup_ci if ENV["CI"]
     api_key = asc_api_key
     team = nextup_team_id
-    app_id, widget_id = ios_ids("prod")
+    ids = ios_ids("prod")
+    app_id = ids.first
 
-    match(type: "appstore", platform: "ios", app_identifier: [app_id, widget_id], readonly: true,
+    match(type: "appstore", platform: "ios", app_identifier: ids, readonly: true,
           skip_provisioning_profiles: false, api_key: api_key, team_id: team)
 
     build_number = latest_testflight_build_number(api_key: api_key, app_identifier: app_id,
@@ -231,10 +239,7 @@ platform :ios do
         method: "app-store",
         signingStyle: "manual",
         teamID: team,
-        provisioningProfiles: {
-          app_id => "match AppStore #{app_id}",
-          widget_id => "match AppStore #{widget_id}"
-        }
+        provisioningProfiles: ids.to_h { |id| [id, "match AppStore #{id}"] }
       }
     )
 

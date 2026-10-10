@@ -48,9 +48,9 @@ before running.
 
 ## iOS
 
-An iPhone app (iOS 18+) with widgets for the Home Screen and Lock Screen that show the next stay. The app manages iCal feed subscriptions shared with the macOS app through a common `Shared/` module. It ships through TestFlight.
+An iPhone app (iOS 18+) with widgets for the Home Screen and Lock Screen that show the next stay. The app manages iCal feed subscriptions shared with the macOS app through a common `Shared/` module. It ships through TestFlight. The iPhone app includes an Apple Watch app with complications; see `docs/ios-setup.md`.
 
-Run `Scripts/generate.sh` and open `NextUp.xcodeproj`. Two schemes: **NextUp** (macOS app, widget and tests) and **NextUpiOS** (iPhone app and widget).
+Run `Scripts/generate.sh` and open `NextUp.xcodeproj`. Three schemes: **NextUp** (macOS app, widget and tests), **NextUpiOS** (iPhone app and widget) and **NextUpWatch** (Apple Watch app and complications).
 
 | | Debug (`Config/Dev.xcconfig`) | Release and TestFlight (`Config/Prod.xcconfig`) |
 |---|---|---|
@@ -121,6 +121,8 @@ key. Both apps sign as team `8353VT99LA`, so they share one Developer ID certifi
 | `NextUpWidget/` | macOS widget extension |
 | `NextUpiOS/` | iPhone app: feed management and background refresh |
 | `NextUpiOSWidget/` | iOS widget extension (Home Screen and Lock Screen) |
+| `NextUpWatch/` | Apple Watch app: feed data received from the iPhone, and the watch-side refresh |
+| `NextUpWatchWidget/` | Apple Watch complications (Next Stay) |
 | `WidgetShared/` | Widget provider and views used by both widget extensions |
 | `Shared/` | Models, iCal parser, feed fetching, App Group storage, formatting (compiled into every target) |
 | `Config/` | Dev and Prod xcconfigs: iOS bundle IDs, App Groups, display names |
