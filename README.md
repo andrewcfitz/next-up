@@ -58,7 +58,7 @@ Run `Scripts/generate.sh` and open `NextUp.xcodeproj`. Three schemes: **NextUp**
 | App Group | `group.biz.fitz.NextUp.dev` | `group.biz.fitz.NextUp` |
 | Name | Next Up Dev | Next Up |
 
-The dev build installs beside the TestFlight one. CI builds the iOS app for the simulator on every pull request and push to main; the TestFlight workflow is run by hand. One-time Apple and secrets setup is in [docs/ios-setup.md](docs/ios-setup.md).
+The dev build installs beside the TestFlight one. CI builds the iOS and watch apps for the simulator on every pull request and push to main; the TestFlight workflow is run by hand. One-time Apple and secrets setup is in [docs/ios-setup.md](docs/ios-setup.md).
 
 ## Releasing
 
@@ -132,7 +132,7 @@ key. Both apps sign as team `8353VT99LA`, so they share one Developer ID certifi
 | `Casks/` | `next-up.rb` Homebrew cask definition |
 | `docs/` | iOS setup guide and design specs |
 | `fastlane/` | Mac and iOS lanes for tests, release, certificates and setup |
-| `.github/workflows/` | CI (tests and iOS build on every PR/push to main) and Release (sign, notarize, publish, update the cask) |
+| `.github/workflows/` | CI (tests, iOS and watch builds on every PR/push to main) and Release (sign, notarize, publish, update the cask) |
 
 ### How data flows
 

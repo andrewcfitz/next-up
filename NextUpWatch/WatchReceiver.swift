@@ -5,6 +5,7 @@ import WidgetKit
 /// Stores what the iPhone sends where the complication's provider reads it.
 final class WatchReceiver: NSObject, WCSessionDelegate, @unchecked Sendable {
     static let shared = WatchReceiver()
+    private static let lastSentAtKey = "lastPayloadSentAt"
 
     /// Lets the open app redraw when new data lands.
     @MainActor var onUpdate: (@MainActor () -> Void)?
@@ -31,8 +32,11 @@ final class WatchReceiver: NSObject, WCSessionDelegate, @unchecked Sendable {
         guard let payload = WatchPayload(dictionary: dictionary) else { return }
         // On the main actor so the read-then-write of the snapshot can't interleave with the model's refresh.
         Task { @MainActor in
-            SharedStore.feeds = payload.feeds
-            SharedStore.snapshot = WatchPayload.newer(payload.snapshot, than: SharedStore.snapshot)
+            let lastApplied = UserDefaults.standard.object(forKey: Self.lastSentAtKey) as? Date
+            guard let merged = payload.merged(currentFeeds: SharedStore.feeds, currentSnapshot: SharedStore.snapshot, lastAppliedAt: lastApplied) else { return }
+            UserDefaults.standard.set(payload.sentAt, forKey: Self.lastSentAtKey)
+            SharedStore.feeds = merged.feeds
+            SharedStore.snapshot = merged.snapshot
             WidgetCenter.shared.reloadAllTimelines()
             onUpdate?()
         }
