@@ -52,6 +52,15 @@ enum StayFormatting {
         "\(compactCountdown(stay, now: now, calendar: calendar)) · \(stay.title)"
     }
 
+    /// CarPlay and StandBy: the countdown drawn large, with its unit set small beneath it.
+    static func glance(_ stay: Stay, now: Date, calendar: Calendar = .current) -> (value: String, unit: String?) {
+        switch daysUntil(stay, now: now, calendar: calendar) {
+        case 0: ("Today", nil)
+        case 1: ("Tomorrow", nil)
+        case let days: ("\(days)", "days")
+        }
+    }
+
     /// Circular complication: "Today" or the bare day count. "Tomorrow" doesn't fit.
     static func circular(_ stay: Stay, now: Date, calendar: Calendar = .current) -> String {
         let days = daysUntil(stay, now: now, calendar: calendar)

@@ -37,6 +37,16 @@ struct LockScreenFormattingTests {
         #expect(line.count <= 24, "\(line)")
     }
 
+    @Test func glanceSplitsTheCountFromItsUnit() {
+        let now = day(2026, 10, 13)
+        let today = StayFormatting.glance(stay("A", checkIn: day(2026, 10, 13)), now: now, calendar: calendar)
+        #expect(today.value == "Today" && today.unit == nil)
+        let tomorrow = StayFormatting.glance(stay("A", checkIn: day(2026, 10, 14)), now: now, calendar: calendar)
+        #expect(tomorrow.value == "Tomorrow" && tomorrow.unit == nil)
+        let later = StayFormatting.glance(stay("A", checkIn: day(2026, 10, 25)), now: now, calendar: calendar)
+        #expect(later.value == "12" && later.unit == "days")
+    }
+
     @Test func circularIsTodayOrABareCount() {
         let now = day(2026, 10, 13)
         #expect(StayFormatting.circular(stay("A", checkIn: day(2026, 10, 13)), now: now, calendar: calendar) == "Today")

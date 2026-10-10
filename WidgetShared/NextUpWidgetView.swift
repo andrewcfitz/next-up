@@ -4,6 +4,7 @@ import WidgetKit
 struct NextUpWidgetView: View {
     var entry: Entry
     @Environment(\.widgetFamily) private var family
+    @Environment(\.showsWidgetContainerBackground) private var showsBackground
 
     var body: some View {
         #if os(watchOS)
@@ -12,6 +13,9 @@ struct NextUpWidgetView: View {
         switch family {
         case .accessoryInline, .accessoryRectangular:
             AccessoryView(entry: entry, family: family)
+        // WidgetKit has no "in CarPlay" flag; CarPlay and StandBy both remove the background, so that's the cue.
+        case .systemSmall where !showsBackground:
+            GlanceView(entry: entry)
         default:
             systemBody
         }
@@ -51,6 +55,54 @@ struct NextUpWidgetView: View {
     }
     #endif
 }
+
+#if os(iOS)
+/// The small widget in CarPlay and StandBy, read at a glance from across a car or a room.
+private struct GlanceView: View {
+    var entry: Entry
+
+    var body: some View {
+        if let next = entry.upcoming.first {
+            let countdown = StayFormatting.glance(next, now: entry.date)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(countdown.value)
+                    .font(.system(size: 56, weight: .bold, design: .rounded))
+                    .foregroundStyle(.tint)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.4)
+                if let unit = countdown.unit {
+                    Text(unit)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                Text(next.title)
+                    .font(.headline.weight(.bold))
+                    .lineLimit(2)
+                if let place = next.place {
+                    Text(place)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            // CarPlay dims taps for apps without a CarPlay scene; StandBy still opens the reservation.
+            .widgetURL(next.url)
+        } else {
+            VStack(spacing: 6) {
+                Image(systemName: "tent.fill")
+                    .font(.largeTitle)
+                    .foregroundStyle(.tint)
+                Text(entry.hasFeeds ? "No stays" : "Add a feed in Next Up")
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}
+#endif
 
 /// The countdown and details for the next check-in.
 private struct NextStayView: View {

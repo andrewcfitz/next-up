@@ -20,6 +20,8 @@ struct NextUpWidget: Widget {
         .configurationDisplayName("Next Stay")
         .description("Counts down to your next campground check-in.")
         .supportedFamilies(Self.families)
+        // The default, but CarPlay and StandBy depend on it, so say it out loud.
+        .containerBackgroundRemovable(true)
     }
 }
 
