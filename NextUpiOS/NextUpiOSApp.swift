@@ -6,6 +6,10 @@ struct NextUpiOSApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
 
+    init() {
+        PhoneWatchSync.shared.activate()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

@@ -55,6 +55,8 @@ final class IOSAppModel {
             snapshot = await FeedRefresh.run(feeds: feeds, previous: snapshot)
             now = .now
         } while needsAnotherRefresh
+
+        PhoneWatchSync.shared.send(feeds: feeds, snapshot: snapshot)
     }
 
     /// iOS decides when, or whether, this runs; it only ever helps the widget's own fetching.
