@@ -36,7 +36,7 @@ NEXTUP_ASC_NAME="<unique name>" bundle exec fastlane ios appstore_record
 
 ## 4. Create the signing profiles
 
-Creates or renews the iOS `development` and `appstore` profiles (named `match AppStore <bundle id>`) for all four identifiers and stores them in the match repo. This needs:
+Creates or renews the iOS `development` and `appstore` profiles (named `match AppStore <bundle id>`) for every identifier and stores them in the match repo. Run it in a real Terminal, not inside tmux: match imports the certificate into the login keychain, and from tmux (a launchd daemon outside the GUI session) that fails with `User interaction is not allowed`. This needs:
 
 - the App Store Connect key env vars: `APP_STORE_CONNECT_API_KEY_ID`, `APP_STORE_CONNECT_API_ISSUER_ID`, `APP_STORE_CONNECT_API_KEY` (base64 or raw PEM)
 - `MATCH_PASSWORD`
