@@ -36,4 +36,11 @@ struct LockScreenFormattingTests {
         let line = StayFormatting.rectangularLines(far, now: now, calendar: calendar, locale: locale)[1]
         #expect(line.count <= 24, "\(line)")
     }
+
+    @Test func circularIsTodayOrABareCount() {
+        let now = day(2026, 10, 13)
+        #expect(StayFormatting.circular(stay("A", checkIn: day(2026, 10, 13)), now: now, calendar: calendar) == "Today")
+        #expect(StayFormatting.circular(stay("A", checkIn: day(2026, 10, 14)), now: now, calendar: calendar) == "1")
+        #expect(StayFormatting.circular(stay("A", checkIn: day(2026, 10, 25)), now: now, calendar: calendar) == "12")
+    }
 }

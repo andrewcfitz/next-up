@@ -52,6 +52,12 @@ enum StayFormatting {
         "\(compactCountdown(stay, now: now, calendar: calendar)) · \(stay.title)"
     }
 
+    /// Circular complication: "Today" or the bare day count. "Tomorrow" doesn't fit.
+    static func circular(_ stay: Stay, now: Date, calendar: Calendar = .current) -> String {
+        let days = daysUntil(stay, now: now, calendar: calendar)
+        return days == 0 ? "Today" : "\(days)"
+    }
+
     static func rectangularLines(_ stay: Stay, now: Date, calendar: Calendar = .current, locale: Locale = .current) -> [String] {
         let style = Date.FormatStyle(locale: locale, calendar: calendar, timeZone: calendar.timeZone)
             .weekday(.abbreviated).month(.abbreviated).day()
