@@ -6,6 +6,8 @@ struct NextUpWidget: Widget {
 
     #if os(iOS)
     static let families: [WidgetFamily] = [.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline]
+    #elseif os(watchOS)
+    static let families: [WidgetFamily] = [.accessoryCircular, .accessoryCorner, .accessoryRectangular, .accessoryInline]
     #else
     static let families: [WidgetFamily] = [.systemSmall, .systemMedium]
     #endif
@@ -104,6 +106,7 @@ extension Entry {
     }
 }
 
+#if !os(watchOS)
 #Preview(as: .systemSmall) {
     NextUpWidget()
 } timeline: {
@@ -115,3 +118,4 @@ extension Entry {
 } timeline: {
     Entry.sample
 }
+#endif

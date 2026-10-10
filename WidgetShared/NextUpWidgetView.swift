@@ -6,7 +6,9 @@ struct NextUpWidgetView: View {
     @Environment(\.widgetFamily) private var family
 
     var body: some View {
-        #if os(iOS)
+        #if os(watchOS)
+        AccessoryView(entry: entry, family: family)
+        #elseif os(iOS)
         switch family {
         case .accessoryInline, .accessoryRectangular:
             AccessoryView(entry: entry, family: family)
@@ -18,6 +20,7 @@ struct NextUpWidgetView: View {
         #endif
     }
 
+    #if !os(watchOS)
     @ViewBuilder private var systemBody: some View {
         if let next = entry.upcoming.first {
             switch family {
@@ -46,6 +49,7 @@ struct NextUpWidgetView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
     }
+    #endif
 }
 
 /// The countdown and details for the next check-in.
@@ -135,16 +139,22 @@ private struct LaterStaysView: View {
     }
 }
 
-#if os(iOS)
+#if os(iOS) || os(watchOS)
 struct AccessoryView: View {
     var entry: Entry
     var family: WidgetFamily
 
     var body: some View {
-        if let next = entry.upcoming.first {
-            if family == .accessoryInline {
-                Text(StayFormatting.inline(next, now: entry.date))
-            } else {
+        let next = entry.upcoming.first
+        switch family {
+        #if os(watchOS)
+        case .accessoryCircular, .accessoryCorner:
+            CountdownComplication(stay: next, now: entry.date, family: family)
+        #endif
+        case .accessoryInline:
+            Text(next.map { StayFormatting.inline($0, now: entry.date) } ?? emptyText)
+        default:
+            if let next {
                 let lines = StayFormatting.rectangularLines(next, now: entry.date)
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(lines.indices, id: \.self) { index in
@@ -156,9 +166,61 @@ struct AccessoryView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .widgetURL(next.url)
+            } else {
+                Text(emptyText)
             }
+        }
+    }
+
+    private var emptyText: String {
+        #if os(watchOS)
+        return entry.hasFeeds ? "No upcoming stays" : "Add a feed in Next Up on iPhone"
+        #else
+        return entry.hasFeeds ? "No upcoming stays" : "Add a feed in Next Up"
+        #endif
+    }
+}
+#endif
+
+#if os(watchOS)
+/// Circular and corner faces have room for a number; corner faces also curve the stay along the bezel.
+private struct CountdownComplication: View {
+    var stay: Stay?
+    var now: Date
+    var family: WidgetFamily
+
+    var body: some View {
+        if let stay, family == .accessoryCorner {
+            Text(StayFormatting.circular(stay, now: now))
+                .font(.system(.title3, design: .rounded).weight(.bold))
+                .minimumScaleFactor(0.5)
+                .widgetCurvesContent()
+                .widgetLabel(StayFormatting.inline(stay, now: now))
+        } else if let stay {
+            ZStack {
+                AccessoryWidgetBackground()
+                VStack(spacing: 0) {
+                    Image(systemName: "tent.fill")
+                        .font(.caption)
+                        .widgetAccentable()
+                    Text(StayFormatting.circular(stay, now: now))
+                        .font(.system(.title3, design: .rounded).weight(.bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                }
+                .padding(4)
+            }
+        } else if family == .accessoryCorner {
+            Image(systemName: "tent.fill")
+                .font(.title3)
+                .widgetAccentable()
         } else {
-            Text(entry.hasFeeds ? "No upcoming stays" : "Add a feed in Next Up")
+            ZStack {
+                AccessoryWidgetBackground()
+                Image(systemName: "tent.fill")
+                    .font(.title3)
+                    .widgetAccentable()
+            }
         }
     }
 }

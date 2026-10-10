@@ -3,6 +3,7 @@ options:
   deploymentTarget:
     macOS: "15.0"
     iOS: "18.0"
+    watchOS: "11.0"
   createIntermediateGroups: true
 configFiles:
   Debug: Config/Dev.xcconfig
@@ -28,6 +29,10 @@ schemes:
     build:
       targets:
         NextUpiOS: all
+  NextUpWatch:
+    build:
+      targets:
+        NextUpWatch: all
 targets:
   NextUp:
     type: application
@@ -97,6 +102,7 @@ targets:
       - Shared
     dependencies:
       - target: NextUpiOSWidgetExtension
+      - target: NextUpWatch
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(NEXTUP_IOS_BUNDLE_ID)
@@ -154,6 +160,70 @@ targets:
           PROVISIONING_PROFILE_SPECIFIER: match AppStore $(PRODUCT_BUNDLE_IDENTIFIER)
     info:
       path: NextUpiOSWidget/Info.plist
+      properties:
+        NextUpAppGroup: $(NEXTUP_APP_GROUP)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+  NextUpWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - NextUpWatch
+      - Shared
+    dependencies:
+      - target: NextUpWatchWidgetExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(NEXTUP_IOS_BUNDLE_ID).watchkitapp
+        DEVELOPMENT_TEAM: 8353VT99LA
+        CODE_SIGN_ENTITLEMENTS: NextUpWatch/NextUpWatch.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: $(NEXTUP_DISPLAY_NAME)
+        INFOPLIST_KEY_WKCompanionAppBundleIdentifier: $(NEXTUP_IOS_BUNDLE_ID)
+        INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        SKIP_INSTALL: YES
+        SWIFT_EMIT_LOC_STRINGS: YES
+      configs:
+        Debug:
+          CODE_SIGN_STYLE: Automatic
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER: match AppStore $(PRODUCT_BUNDLE_IDENTIFIER)
+    info:
+      path: NextUpWatch/Info.plist
+      properties:
+        NextUpAppGroup: $(NEXTUP_APP_GROUP)
+        WKApplication: true
+  NextUpWatchWidgetExtension:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - NextUpWatchWidget
+      - WidgetShared
+      - Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(NEXTUP_IOS_BUNDLE_ID).watchkitapp.Widget
+        DEVELOPMENT_TEAM: 8353VT99LA
+        CODE_SIGN_ENTITLEMENTS: NextUpWatchWidget/NextUpWatchWidget.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: $(NEXTUP_DISPLAY_NAME)
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: WidgetBackground
+        SKIP_INSTALL: YES
+        SWIFT_EMIT_LOC_STRINGS: YES
+      configs:
+        Debug:
+          CODE_SIGN_STYLE: Automatic
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER: match AppStore $(PRODUCT_BUNDLE_IDENTIFIER)
+    info:
+      path: NextUpWatchWidget/Info.plist
       properties:
         NextUpAppGroup: $(NEXTUP_APP_GROUP)
         NSExtension:
