@@ -1,6 +1,6 @@
 cask "next-up" do
-  version "1.0.1"
-  sha256 "8e67108ab373f5bef5e12140569d01b2629a79cf9cc888e9b6dc6e49a104034e"
+  version "1.1.0"
+  sha256 "a88c2e06c6d39250775cc712e095c4ece6c080b1b3168ba313ac000fb1dd5344"
 
   url "https://github.com/andrewcfitz/next-up/releases/download/v#{version}/NextUp-#{version}.zip"
   name "Next Up"
