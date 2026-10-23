@@ -9,12 +9,13 @@ import Foundation
 struct ICSParser {
     var calendar: Calendar = .current
 
-    /// Parses `ics` and returns the stays that check in within `range`.
-    func stays(from ics: String, checkingInWithin range: DateInterval, feed: CalendarFeed? = nil) -> [Stay] {
+    /// Parses `ics` and returns the stays with at least one night inside `range`, so a stay
+    /// already in progress at `range.start` is kept.
+    func stays(from ics: String, within range: DateInterval, feed: CalendarFeed? = nil) -> [Stay] {
         Self.parseComponents(ics)
             .filter { $0.name == "VEVENT" }
             .compactMap { makeStay($0, feed: feed) }
-            .filter { range.start <= $0.checkIn && $0.checkIn < range.end }
+            .filter { range.start < $0.checkOut && $0.checkIn < range.end }
             .sorted { ($0.checkIn, $0.title) < ($1.checkIn, $1.title) }
     }
 

@@ -16,6 +16,7 @@ final class IOSAppModel {
     @ObservationIgnored private var needsAnotherRefresh = false
 
     var upcomingStays: [Stay] { snapshot?.stays.upcoming(from: now) ?? [] }
+    var upcomingItems: [StayListItem] { snapshot?.stays.upcomingWithBreaks(from: now) ?? [] }
 
     func status(for feed: CalendarFeed) -> FeedStatus? { snapshot?.statuses[feed.id] }
 

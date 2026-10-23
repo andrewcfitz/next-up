@@ -49,6 +49,11 @@ final class AppModel {
 
     var nextStay: Stay? { upcomingStays.first }
 
+    /// Upcoming stays with the gaps and overlaps between them.
+    var upcomingItems: [StayListItem] {
+        snapshot?.stays.upcomingWithBreaks(from: now) ?? []
+    }
+
     func status(for feed: CalendarFeed) -> FeedStatus? {
         snapshot?.statuses[feed.id]
     }

@@ -32,18 +32,31 @@ struct ContentView: View {
                 }
 
                 if !model.feeds.isEmpty {
-                    Section("Upcoming") {
+                    let items = model.upcomingItems.prefix(stays: 10)
+                    Section {
                         if model.upcomingStays.isEmpty {
                             Text("No upcoming stays.").foregroundStyle(.secondary)
                         }
-                        ForEach(model.upcomingStays.prefix(10)) { stay in
-                            Button {
-                                if let url = stay.url { openURL(url) }
-                            } label: {
-                                StayRow(stay: stay, now: model.now)
+                        ForEach(items) { item in
+                            switch item {
+                            case .stay(let stay):
+                                Button {
+                                    if let url = stay.url { openURL(url) }
+                                } label: {
+                                    StayRow(stay: stay, now: model.now)
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(stay.url == nil)
+                            case .breakBetween(let gap):
+                                BreakRow(gap: gap)
+                                    .listRowBackground(gap.kind.color.opacity(0.1))
                             }
-                            .buttonStyle(.plain)
-                            .disabled(stay.url == nil)
+                        }
+                    } header: {
+                        HStack {
+                            Text("Upcoming")
+                            Spacer()
+                            BreakSummary(breaks: items.breaks)
                         }
                     }
                 }
@@ -104,6 +117,49 @@ private struct StayRow: View {
             Text(StayFormatting.countdown(stay, now: now)).font(.callout.weight(.semibold)).foregroundStyle(.secondary)
         }
         .contentShape(Rectangle())
+    }
+}
+
+/// Nights between two stays that are unbooked or booked twice.
+private struct BreakRow: View {
+    var gap: StayBreak
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: gap.kind.systemImage)
+                .font(.title3)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(StayFormatting.title(gap)).font(.subheadline.weight(.semibold))
+                Text(StayFormatting.detail(gap)).font(.footnote)
+            }
+            Spacer()
+            Text(StayFormatting.nights(gap)).font(.subheadline.weight(.semibold))
+        }
+        .foregroundStyle(gap.kind.color)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// "2 gaps · 1 overlap", each count in its own color.
+private struct BreakSummary: View {
+    var breaks: [StayBreak]
+
+    var body: some View {
+        let gaps = breaks.filter { $0.kind == .gap }
+        let overlaps = breaks.filter { $0.kind == .overlap }
+        HStack(spacing: 6) {
+            if let text = StayFormatting.summary(gaps) {
+                Text(text).foregroundStyle(StayBreak.Kind.gap.color)
+            }
+            if !gaps.isEmpty && !overlaps.isEmpty {
+                Text("·")
+            }
+            if let text = StayFormatting.summary(overlaps) {
+                Text(text).foregroundStyle(StayBreak.Kind.overlap.color)
+            }
+        }
+        .fontWeight(.semibold)
+        .textCase(nil)
     }
 }
 

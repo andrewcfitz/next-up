@@ -6,6 +6,10 @@ A macOS menu bar app and widget plus an iPhone app with Home Screen and Lock Scr
 - **Menu bar**: a tent icon, optionally followed by the next stay and its countdown. Click it for the full list.
 - **Settings window**: add, edit or disable feeds, and pick the refresh interval, the menu bar style and launch at login.
 
+Between stays, the app and the medium widget flag **gaps** in red (nights with nowhere booked,
+like checking out Oct 23 and in Oct 24) and **overlaps** in green (nights booked at two places).
+Back-to-back stays, out and in the same day, show nothing.
+
 A stay is any **all-day event** in a feed, or a **timed event that runs past midnight** (such
 as check-in at 2 PM Friday and check-out at 11 AM Monday). Its check-in is the start date and
 its check-out is the end date, so an event from Oct 2 to Oct 5 is three nights. A stay that's
