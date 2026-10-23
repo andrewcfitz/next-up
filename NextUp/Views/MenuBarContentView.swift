@@ -30,12 +30,27 @@ struct MenuBarContentView: View {
             .padding(.bottom, 10)
 
             if let next = stays.first {
+                let items = model.upcomingItems
+                let nextIndex = items.firstIndex { $0.stay != nil } ?? items.endIndex
+                // Breaks before the next stay (tonight is unbooked), then the ones straight after it.
+                let before = items[..<nextIndex].breaks
+                let rest = Array(items.dropFirst(nextIndex + 1)).prefix(stays: maxLater)
+                let after = rest.prefix { $0.stay == nil }
+                let later = rest.dropFirst(after.count)
+
+                ForEach(before, id: \.self) { gap in
+                    BreakLine(gap: gap).padding(.horizontal, 14).padding(.bottom, 8)
+                }
                 StayLink(stay: next) {
                     NextStayCard(stay: next, now: model.now)
                 }
                 .padding(.horizontal, 14)
+                ForEach(after) { item in
+                    if case .breakBetween(let gap) = item {
+                        BreakLine(gap: gap).padding(.horizontal, 14).padding(.top, 8)
+                    }
+                }
 
-                let later = stays.dropFirst().prefix(maxLater)
                 if !later.isEmpty {
                     Text("THEN")
                         .font(.caption.weight(.bold))
@@ -43,11 +58,16 @@ struct MenuBarContentView: View {
                         .padding(.horizontal, 14)
                         .padding(.top, 12)
                         .padding(.bottom, 4)
-                    ForEach(later) { stay in
-                        StayLink(stay: stay) {
-                            LaterStayRow(stay: stay, now: model.now)
+                    ForEach(later) { item in
+                        switch item {
+                        case .stay(let stay):
+                            StayLink(stay: stay) {
+                                LaterStayRow(stay: stay, now: model.now)
+                            }
+                            .padding(.horizontal, 8)
+                        case .breakBetween(let gap):
+                            BreakLine(gap: gap).padding(.horizontal, 8).padding(.vertical, 2)
                         }
-                        .padding(.horizontal, 8)
                     }
                 }
             } else {
@@ -141,6 +161,27 @@ private struct LaterStayRow: View {
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 5)
+    }
+}
+
+/// A tinted line for nights between stays that are unbooked or booked twice.
+private struct BreakLine: View {
+    var gap: StayBreak
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: gap.kind.systemImage).imageScale(.small)
+            Text(StayFormatting.short(gap)).fontWeight(.semibold)
+            Spacer(minLength: 8)
+            Text(gap.kind == .gap ? StayFormatting.nights(gap) : "booked twice")
+                .font(.caption.weight(.semibold))
+        }
+        .foregroundStyle(gap.kind.color)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(gap.kind.color.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(StayFormatting.title(gap) + ", " + StayFormatting.detail(gap))
     }
 }
 

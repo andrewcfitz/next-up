@@ -34,7 +34,7 @@ struct NextUpWidgetView: View {
                         .frame(width: 150, alignment: .leading)
                         .linked(to: next.url)
                     Divider()
-                    LaterStaysView(stays: Array(entry.upcoming.dropFirst().prefix(3)))
+                    LaterStaysView(items: Array(entry.upcomingItems.filter { $0.stay?.id != next.id }.prefix(3)))
                 }
             default:
                 // A small widget is a single tap target.
@@ -159,31 +159,40 @@ private struct NextStayView: View {
     }
 }
 
-/// The stays after the next one.
+/// The stays after the next one, and any gaps or overlaps around them.
 private struct LaterStaysView: View {
-    var stays: [Stay]
+    var items: [StayListItem]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
             Text("THEN")
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(.secondary)
-            if stays.isEmpty {
+            if items.isEmpty {
                 Text("Nothing else booked yet.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            ForEach(stays) { stay in
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(stay.title)
-                        .font(.caption.weight(.semibold))
-                        .lineLimit(1)
-                    Text("\(StayFormatting.shortDates(stay)) · \(StayFormatting.nights(stay))")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+            ForEach(items) { item in
+                switch item {
+                case .stay(let stay):
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(stay.title)
+                            .font(.caption.weight(.semibold))
+                            .lineLimit(1)
+                        Text("\(StayFormatting.shortDates(stay)) · \(StayFormatting.nights(stay))")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    .linked(to: stay.url)
+                case .breakBetween(let gap):
+                    Label(StayFormatting.short(gap), systemImage: gap.kind.systemImage)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(gap.kind.color)
+                        .imageScale(.small)
                         .lineLimit(1)
                 }
-                .linked(to: stay.url)
             }
             Spacer(minLength: 0)
         }

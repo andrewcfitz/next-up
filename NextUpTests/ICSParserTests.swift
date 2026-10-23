@@ -33,7 +33,7 @@ struct ICSParserTests {
         DTEND;VALUE=DATE:20261005
         END:VEVENT
         """)
-        let stays = parser.stays(from: text, checkingInWithin: range)
+        let stays = parser.stays(from: text, within: range)
         #expect(stays.count == 1)
         #expect(stays.first?.title == "Pine Hollow RV Resort")
         #expect(stays.first?.location == "Moab, UT")
@@ -50,7 +50,7 @@ struct ICSParserTests {
         DTSTART;VALUE=DATE:20261002
         END:VEVENT
         """)
-        #expect(parser.stays(from: text, checkingInWithin: range).first?.nights == 1)
+        #expect(parser.stays(from: text, within: range).first?.nights == 1)
     }
 
     @Test func durationSetsCheckOut() {
@@ -62,7 +62,7 @@ struct ICSParserTests {
         DURATION:P1W
         END:VEVENT
         """)
-        #expect(parser.stays(from: text, checkingInWithin: range).first?.checkOut == day(2026, 10, 9))
+        #expect(parser.stays(from: text, within: range).first?.checkOut == day(2026, 10, 9))
     }
 
     @Test func ignoresSameDayTimedEvents() {
@@ -79,7 +79,7 @@ struct ICSParserTests {
         DTSTART:20261003T150000Z
         END:VEVENT
         """)
-        #expect(parser.stays(from: text, checkingInWithin: range).isEmpty)
+        #expect(parser.stays(from: text, within: range).isEmpty)
     }
 
     @Test func timedOvernightEventIsAStay() {
@@ -91,7 +91,7 @@ struct ICSParserTests {
         DTEND;TZID=America/Denver:20261005T110000
         END:VEVENT
         """)
-        let stays = parser.stays(from: text, checkingInWithin: range)
+        let stays = parser.stays(from: text, within: range)
         #expect(stays.first?.checkIn == day(2026, 10, 2))
         #expect(stays.first?.checkOut == day(2026, 10, 5))
         #expect(stays.first?.nights == 3)
@@ -107,7 +107,7 @@ struct ICSParserTests {
         DTEND:20261019T170000Z
         END:VEVENT
         """)
-        let stays = parser.stays(from: text, checkingInWithin: range)
+        let stays = parser.stays(from: text, within: range)
         #expect(stays.first?.checkIn == day(2026, 10, 12))
         #expect(stays.first?.nights == 7)
     }
@@ -139,7 +139,7 @@ struct ICSParserTests {
         central.timeZone = TimeZone(identifier: "America/Chicago")!
         let stays = ICSParser(calendar: central).stays(
             from: text,
-            checkingInWithin: DateInterval(start: central.date(from: DateComponents(year: 2026, month: 9, day: 27))!, duration: 86_400 * 365)
+            within: DateInterval(start: central.date(from: DateComponents(year: 2026, month: 9, day: 27))!, duration: 86_400 * 365)
         )
         #expect(stays.map(\.title) == ["Lakeside Park RV Campground - 409", "Lakeside Park RV Campground - 406"])
         #expect(stays.first?.checkIn == central.date(from: DateComponents(year: 2026, month: 10, day: 12)))
@@ -165,7 +165,7 @@ struct ICSParserTests {
         DURATION:P2DT21H
         END:VEVENT
         """)
-        #expect(parser.stays(from: text, checkingInWithin: range).first?.checkOut == day(2026, 10, 5))
+        #expect(parser.stays(from: text, within: range).first?.checkOut == day(2026, 10, 5))
     }
 
     @Test func treatsOutlookAllDayFlagAsAllDay() {
@@ -178,7 +178,7 @@ struct ICSParserTests {
         X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
         END:VEVENT
         """)
-        let stays = parser.stays(from: text, checkingInWithin: range)
+        let stays = parser.stays(from: text, within: range)
         #expect(stays.first?.checkIn == day(2026, 10, 12))
         #expect(stays.first?.nights == 7)
     }
@@ -198,8 +198,9 @@ struct ICSParserTests {
         DTEND;VALUE=DATE:20261005
         END:VEVENT
         """)
-        let stays = parser.stays(from: text, checkingInWithin: range)
-        #expect(stays.map(\.title) == ["Where We're Going"])
+        let stays = parser.stays(from: text, within: range)
+        #expect(stays.map(\.title) == ["Where We Are Now", "Where We're Going"])
+        #expect(stays.upcoming(from: day(2026, 9, 27), calendar: calendar).map(\.title) == ["Where We're Going"])
     }
 
     @Test func stayCheckingInTodayIsUpcoming() {
@@ -222,7 +223,7 @@ struct ICSParserTests {
         DTSTART;VALUE=DATE:20261005
         END:VEVENT
         """)
-        #expect(parser.stays(from: text, checkingInWithin: range).map(\.title) == ["First", "Second"])
+        #expect(parser.stays(from: text, within: range).map(\.title) == ["First", "Second"])
     }
 
     @Test func unfoldsLinesAndUnescapesText() {
@@ -234,7 +235,7 @@ struct ICSParserTests {
         DTSTART;VALUE=DATE:20261012
         END:VEVENT
         """)
-        #expect(parser.stays(from: text, checkingInWithin: range).first?.title == "Desert Sky Campground; Site 12, pull-through")
+        #expect(parser.stays(from: text, within: range).first?.title == "Desert Sky Campground; Site 12, pull-through")
     }
 
     @Test func skipsCancelledStays() {
@@ -246,7 +247,7 @@ struct ICSParserTests {
         DTSTART;VALUE=DATE:20261002
         END:VEVENT
         """)
-        #expect(parser.stays(from: text, checkingInWithin: range).isEmpty)
+        #expect(parser.stays(from: text, within: range).isEmpty)
     }
 
     @Test func ignoresNestedAlarms() {
@@ -262,7 +263,7 @@ struct ICSParserTests {
         END:VALARM
         END:VEVENT
         """)
-        #expect(parser.stays(from: text, checkingInWithin: range).map(\.title) == ["With Alarm"])
+        #expect(parser.stays(from: text, within: range).map(\.title) == ["With Alarm"])
     }
 
     @Test func readsReservationLinkFromURLProperty() {
@@ -274,7 +275,7 @@ struct ICSParserTests {
         URL:https://example.com/reservations/42
         END:VEVENT
         """)
-        #expect(parser.stays(from: text, checkingInWithin: range).first?.url?.absoluteString == "https://example.com/reservations/42")
+        #expect(parser.stays(from: text, within: range).first?.url?.absoluteString == "https://example.com/reservations/42")
     }
 
     /// Louie folds long URLs mid-word across lines, in both URL and DESCRIPTION.
@@ -287,7 +288,7 @@ struct ICSParserTests {
             + "UID:a\r\n"
             + "URL:https://example.com/campgrounds/019fee22-7baf-7f9f-be70-9b80f93c92d0?vie\r\n w=upcoming\r\n"
             + "END:VEVENT\r\nEND:VCALENDAR\r\n"
-        let url = parser.stays(from: text, checkingInWithin: range).first?.url
+        let url = parser.stays(from: text, within: range).first?.url
         #expect(url?.absoluteString == "https://example.com/campgrounds/019fee22-7baf-7f9f-be70-9b80f93c92d0?view=upcoming")
     }
 
@@ -306,9 +307,27 @@ struct ICSParserTests {
         DTSTART;VALUE=DATE:20261003
         END:VEVENT
         """)
-        let stays = parser.stays(from: text, checkingInWithin: range)
+        let stays = parser.stays(from: text, within: range)
         #expect(stays.first?.url?.absoluteString == "https://example.com/r/409")
         #expect(stays.last?.url == nil)
+    }
+
+    @Test func keepsStayInProgressAtRangeStart() {
+        let text = ics("""
+        BEGIN:VEVENT
+        UID:1
+        SUMMARY:Checked Out
+        DTSTART;VALUE=DATE:20260924
+        DTEND;VALUE=DATE:20260927
+        END:VEVENT
+        BEGIN:VEVENT
+        UID:2
+        SUMMARY:In Progress
+        DTSTART;VALUE=DATE:20260925
+        DTEND;VALUE=DATE:20260928
+        END:VEVENT
+        """)
+        #expect(parser.stays(from: text, within: range).map(\.title) == ["In Progress"])
     }
 
     @Test func webcalURLsAreFetchedOverHTTPS() {

@@ -34,6 +34,7 @@ struct Entry: TimelineEntry {
 
     /// Stays that haven't started as of this entry's date, soonest first.
     var upcoming: [Stay] { stays.upcoming(from: date) }
+    var upcomingItems: [StayListItem] { stays.upcomingWithBreaks(from: date) }
 }
 
 struct Provider: TimelineProvider {

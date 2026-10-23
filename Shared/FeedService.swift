@@ -50,7 +50,7 @@ struct FeedService: Sendable {
                 stays += feedStays
                 statuses[id] = FeedStatus(stayCount: feedStays.count)
             case .failure(let error):
-                let stale = previous?.stays.filter { $0.feedID == id }.upcoming(from: now, calendar: calendar) ?? []
+                let stale = previous?.stays.filter { $0.feedID == id && $0.checkOut > today } ?? []
                 stays += stale
                 statuses[id] = FeedStatus(stayCount: stale.count, error: error.localizedDescription)
             }
@@ -69,6 +69,6 @@ struct FeedService: Sendable {
         }
         let text = String(decoding: data, as: UTF8.self)
         guard text.contains("BEGIN:VCALENDAR") else { throw FeedError.notCalendar }
-        return ICSParser(calendar: calendar).stays(from: text, checkingInWithin: range, feed: feed)
+        return ICSParser(calendar: calendar).stays(from: text, within: range, feed: feed)
     }
 }
